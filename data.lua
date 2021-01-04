@@ -1,6 +1,4 @@
-core = require("lib/core")
-
-cflib = {}
+require("lib/core")
 
 do
     cflib.gui_styles = require("prototypes/gui_styles")
@@ -25,7 +23,7 @@ do
     data:extend {
         {
             type = "item-group",
-            name = core.item_group_name,
+            name = cflib.item_group_name,
             order = "z",
             inventory_order = "z",
             icon = "__composite_factories_pyblock__/graphics/item-group.png",
@@ -33,13 +31,13 @@ do
         },
         {
             type = "item-subgroup",
-            name = core.item_group_name,
-            group = core.item_group_name,
+            name = cflib.item_group_name,
+            group = cflib.item_group_name,
             order = "a"
         },
         {
             type = "item-group",
-            name = core.processing_recipe_group_name,
+            name = cflib.processing_recipe_group_name,
             order = "z",
             inventory_order = "z",
             icon = "__composite_factories_pyblock__/graphics/processing-recipe-group.png",
@@ -47,8 +45,8 @@ do
         },
         {
             type = "item-subgroup",
-            name = core.processing_recipe_group_name,
-            group = core.processing_recipe_group_name,
+            name = cflib.processing_recipe_group_name,
+            group = cflib.processing_recipe_group_name,
             order = "a"
         }
     }
@@ -56,14 +54,14 @@ do
     data:extend {
         {
             type = "recipe-category",
-            name = core.processing_recipe_category_name
+            name = cflib.processing_recipe_category_name
         }
     }
 
     data:extend {
         {
             type = "sprite",
-            name = core.time_duration_indicator_sprite_name,
+            name = cflib.time_duration_indicator_sprite_name,
             filename = "__core__/graphics/time-editor-icon.png",
             size = {32, 32}
         }
@@ -72,7 +70,7 @@ do
     data:extend {
         {
             type = "sprite",
-            name = core.energy_indicator_sprite_name,
+            name = cflib.energy_indicator_sprite_name,
             filename = "__core__/graphics/icons/alerts/electricity-icon-unplugged.png",
             size = {64, 64}
         }
@@ -80,7 +78,7 @@ do
 
     -- The container used for material exchange.
     local function add_container(args)
-        local full_name = core.make_container_name(args.name)
+        local full_name = cflib.make_container_name(args.name)
 
         local base_sprite_size = 1
         local base_hr_sprite_size = 2
@@ -95,7 +93,7 @@ do
             icon = "__base__/graphics/icons/wooden-chest.png",
             icon_size = 64,
             icon_mipmaps = 4,
-            subgroup = core.item_group_name,
+            subgroup = cflib.item_group_name,
             order = "a[items]-a[wooden-chest]",
             place_result = full_name,
             stack_size = 1
@@ -187,7 +185,7 @@ do
     end
 
     cflib.add_technology = function(args)
-        local full_name = core.make_technology_name(args.name)
+        local full_name = cflib.make_technology_name(args.name)
 
         data:extend({{
             type = "technology",
@@ -234,8 +232,8 @@ do
     }
 
     cflib.add_composite_factory = function(args)
-        local factory_full_name = core.make_composite_factory_name(args.name)
-        local processing_full_name = core.make_processing_recipe_name(args.name)
+        local factory_full_name = cflib.make_composite_factory_name(args.name)
+        local processing_full_name = cflib.make_processing_recipe_name(args.name)
 
         local base_sprite_size = 3
         local base_hr_sprite_size = 6
@@ -300,8 +298,8 @@ do
                 name = processing_full_name,
                 energy_required = args.energy_required,
                 enabled = true,
-                category = core.processing_recipe_category_name,
-                subgroup = core.processing_recipe_group_name,
+                category = cflib.processing_recipe_category_name,
+                subgroup = cflib.processing_recipe_group_name,
                 order = "b",
                 ingredients = args.ingredients,
                 results = args.results
@@ -312,8 +310,8 @@ do
                 name = processing_full_name,
                 energy_required = args.energy_required,
                 enabled = true,
-                category = core.processing_recipe_category_name,
-                subgroup = core.processing_recipe_group_name,
+                category = cflib.processing_recipe_category_name,
+                subgroup = cflib.processing_recipe_group_name,
                 -- TODO: generate an icon from products
                 icon = "__base__/graphics/icons/assembling-machine-1.png",
                 order = "b",
@@ -330,7 +328,7 @@ do
             icon = "__base__/graphics/icons/assembling-machine-1.png",
             icon_size = 64,
             flags = {},
-            subgroup = core.item_group_name,
+            subgroup = cflib.item_group_name,
             order = "b",
             place_result = factory_full_name,
             stack_size = 1
@@ -351,7 +349,7 @@ do
             collision_box = {{-half_size+0.1, -half_size+0.1}, {half_size-0.1, half_size-0.1}},
             selection_box = {{-half_size, -half_size}, {half_size, half_size}},
             match_animation_speed_to_activity = false,
-            crafting_categories = {core.processing_recipe_category_name},
+            crafting_categories = {cflib.processing_recipe_category_name},
             scale_entity_info_icon = true,
             module_specification = {
                 module_slots = 1
@@ -435,7 +433,7 @@ do
             error("Only generators without ingredients are supported right now.")
         end
 
-        local full_name = core.make_generator_name(args.name)
+        local full_name = cflib.make_generator_name(args.name)
 
         local base_sprite_size = 3
         local base_hr_sprite_size = 6
@@ -467,7 +465,7 @@ do
             icon = "__base__/graphics/icons/solar-panel.png",
             icon_size = 64,
             flags = {},
-            subgroup = core.item_group_name,
+            subgroup = cflib.item_group_name,
             order = "b",
             place_result = full_name,
             stack_size = 1

@@ -1,13 +1,11 @@
-core = require("lib/core")
+require("lib/core")
 
-cflib = {
-    init_flags = {},
-    event_handlers = {},
+cflib.init_flags = {}
+cflib.event_handlers = {}
 
     -- TODO: try to unify these with event_handlers?
-    on_every_10th_tick_while_open = {},
-    on_researched_finished_while_open = {}
-}
+cflib.on_every_10th_tick_while_open = {}
+cflib.on_researched_finished_while_open = {}
 
 do
     -- TODO: utility lib?
@@ -98,9 +96,9 @@ do
 
         for name, e in pairs(game.entity_prototypes) do
             if e.type == "assembling-machine" then
-                if core.is_mod_prefixed_name(name) then
-                    raw_name = core.unmake_composite_factory_name(name)
-                    processing_recipe_name = core.make_processing_recipe_name(raw_name)
+                if cflib.is_mod_prefixed_name(name) then
+                    raw_name = cflib.unmake_composite_factory_name(name)
+                    processing_recipe_name = cflib.make_processing_recipe_name(raw_name)
 
                     entity = e
                     processing_recipe = game.recipe_prototypes[processing_recipe_name]
@@ -115,7 +113,7 @@ do
                     })
                 end
             elseif e.type == "electric-energy-interface" then
-                if core.is_mod_prefixed_name(name) then
+                if cflib.is_mod_prefixed_name(name) then
                     entity = e
                     entity_item = game.item_prototypes[name]
                     entity_item_recipe = game.recipe_prototypes[name]
@@ -149,15 +147,15 @@ do
 
     -- TODO: separate file for every gui, interface through cflib.* and global.*?
     local function setup_material_exchange_container_gui(player)
-        local gui_name = core.make_gui_element_name("material-exchange-container-gui")
-        local main_pane_name = core.make_gui_element_name("material-exchange-container-gui-main-pane")
-        local exchange_table_name = core.make_gui_element_name("material-exchange-container-gui-exchange-table")
+        local gui_name = cflib.make_gui_element_name("material-exchange-container-gui")
+        local main_pane_name = cflib.make_gui_element_name("material-exchange-container-gui-main-pane")
+        local exchange_table_name = cflib.make_gui_element_name("material-exchange-container-gui-exchange-table")
 
-        local gui_style_name = core.make_gui_style_name("material-exchange-container-gui")
-        local exchange_table_row_style_name = core.make_gui_style_name("material-exchange-container-gui-exchange-table")
+        local gui_style_name = cflib.make_gui_style_name("material-exchange-container-gui")
+        local exchange_table_row_style_name = cflib.make_gui_style_name("material-exchange-container-gui-exchange-table")
 
-        local hide_not_craftable_checkbox_name = core.make_gui_element_name("material-exchange-container-gui-hide-not-craftable")
-        local hide_not_researched_checkbox_name = core.make_gui_element_name("material-exchange-container-gui-hide-not-researched")
+        local hide_not_craftable_checkbox_name = cflib.make_gui_element_name("material-exchange-container-gui-hide-not-craftable")
+        local hide_not_researched_checkbox_name = cflib.make_gui_element_name("material-exchange-container-gui-hide-not-researched")
 
         local gui = player.gui.relative.add{
             type = "frame",
@@ -167,7 +165,7 @@ do
             anchor = {
                 gui = defines.relative_gui_type.container_gui,
                 position = defines.relative_gui_position.right,
-                name = core.make_container_name("material-exchange-container")
+                name = cflib.make_container_name("material-exchange-container")
             },
             style = gui_style_name
         }
@@ -207,24 +205,24 @@ do
             local processing_recipe = prototypes.processing_recipe
             local unlocked_by = prototypes.unlocked_by
 
-            local unlocked_by_panel_name = core.make_gui_style_name("material-exchange-container-gui-exchange-unlocked-by-" .. name)
-            local exchange_table_row_name = core.make_gui_element_name("material-exchange-container-gui-exchange-table-row-" .. name)
-            local exchange_table_row_line_name = core.make_gui_element_name("material-exchange-container-gui-exchange-table-row-line-" .. name)
-            local craft_button_name = core.make_gui_element_name("material-exchange-container-gui-exchange-table-craft-" .. name)
-            local building_ingredients_flow_name = core.make_gui_element_name("material-exchange-container-gui-exchange-table-building-ingredients-flow-" .. name)
-            local building_ingredients_panel_name = core.make_gui_element_name("material-exchange-container-gui-exchange-table-building-ingredients-panel-" .. name)
-            local building_ingredients_preview_panel_name = core.make_gui_element_name("material-exchange-container-gui-exchange-table-building-ingredients-preview-panel-" .. name)
-            local toggle_visibility_button_name = core.make_gui_element_name("material-exchange-container-gui-exchange-table-toggle-visibility-button-" .. name)
+            local unlocked_by_panel_name = cflib.make_gui_style_name("material-exchange-container-gui-exchange-unlocked-by-" .. name)
+            local exchange_table_row_name = cflib.make_gui_element_name("material-exchange-container-gui-exchange-table-row-" .. name)
+            local exchange_table_row_line_name = cflib.make_gui_element_name("material-exchange-container-gui-exchange-table-row-line-" .. name)
+            local craft_button_name = cflib.make_gui_element_name("material-exchange-container-gui-exchange-table-craft-" .. name)
+            local building_ingredients_flow_name = cflib.make_gui_element_name("material-exchange-container-gui-exchange-table-building-ingredients-flow-" .. name)
+            local building_ingredients_panel_name = cflib.make_gui_element_name("material-exchange-container-gui-exchange-table-building-ingredients-panel-" .. name)
+            local building_ingredients_preview_panel_name = cflib.make_gui_element_name("material-exchange-container-gui-exchange-table-building-ingredients-preview-panel-" .. name)
+            local toggle_visibility_button_name = cflib.make_gui_element_name("material-exchange-container-gui-exchange-table-toggle-visibility-button-" .. name)
 
-            local craft_button_style_name = core.make_gui_style_name("material-exchange-container-gui-exchange-table-craft")
-            local toggle_visibility_button_style_name = core.make_gui_style_name("material-exchange-container-gui-exchange-table-toggle-visibility-button")
-            local building_ingredients_flow_style_name = core.make_gui_style_name("material-exchange-container-gui-exchange-table-building-ingredients-flow")
-            local ingredient_summary_panel_style_name = core.make_gui_style_name("material-exchange-container-gui-exchange-table-ingredient-summary-panel")
-            local product_summary_panel_style_name = core.make_gui_style_name("material-exchange-container-gui-exchange-table-product-summary-panel")
-            local energy_required_panel_style_name = core.make_gui_style_name("material-exchange-container-gui-exchange-table-energy-required-panel")
-            local building_ingredients_preview_panel_style_name = core.make_gui_style_name("material-exchange-container-gui-exchange-table-building-ingredients-preview-panel")
-            local building_ingredients_panel_style_name = core.make_gui_style_name("material-exchange-container-gui-exchange-table-building-ingredients-panel")
-            local item_preview_style_normal_name = core.make_gui_style_name("material-exchange-container-gui-exchange-table-item-preview-normal")
+            local craft_button_style_name = cflib.make_gui_style_name("material-exchange-container-gui-exchange-table-craft")
+            local toggle_visibility_button_style_name = cflib.make_gui_style_name("material-exchange-container-gui-exchange-table-toggle-visibility-button")
+            local building_ingredients_flow_style_name = cflib.make_gui_style_name("material-exchange-container-gui-exchange-table-building-ingredients-flow")
+            local ingredient_summary_panel_style_name = cflib.make_gui_style_name("material-exchange-container-gui-exchange-table-ingredient-summary-panel")
+            local product_summary_panel_style_name = cflib.make_gui_style_name("material-exchange-container-gui-exchange-table-product-summary-panel")
+            local energy_required_panel_style_name = cflib.make_gui_style_name("material-exchange-container-gui-exchange-table-energy-required-panel")
+            local building_ingredients_preview_panel_style_name = cflib.make_gui_style_name("material-exchange-container-gui-exchange-table-building-ingredients-preview-panel")
+            local building_ingredients_panel_style_name = cflib.make_gui_style_name("material-exchange-container-gui-exchange-table-building-ingredients-panel")
+            local item_preview_style_normal_name = cflib.make_gui_style_name("material-exchange-container-gui-exchange-table-item-preview-normal")
 
             local num_building_ingredients_columns = 5;
             local num_processing_recipe_ingredients_columns = 2;
@@ -344,7 +342,7 @@ do
 
                 product_summary_panel.add{
                     type = "sprite-button",
-                    sprite = core.energy_indicator_sprite_name,
+                    sprite = cflib.energy_indicator_sprite_name,
                     number = energy_produced_mw * 1000000,
                     tooltip = {"", energy_produced_mw, "MW"},
                     style = item_preview_style_normal_name
@@ -375,7 +373,7 @@ do
             if processing_recipe then
                 energy_required_panel.add{
                     type = "sprite-button",
-                    sprite = core.time_duration_indicator_sprite_name,
+                    sprite = cflib.time_duration_indicator_sprite_name,
                     number = processing_recipe.energy,
                     style = item_preview_style_normal_name
                 }
@@ -474,9 +472,9 @@ do
     end
 
     local function setup_material_exchange_container_gui_events(player)
-        local gui_name = core.make_gui_element_name("material-exchange-container-gui")
-        local main_pane_name = core.make_gui_element_name("material-exchange-container-gui-main-pane")
-        local exchange_table_name = core.make_gui_element_name("material-exchange-container-gui-exchange-table")
+        local gui_name = cflib.make_gui_element_name("material-exchange-container-gui")
+        local main_pane_name = cflib.make_gui_element_name("material-exchange-container-gui-main-pane")
+        local exchange_table_name = cflib.make_gui_element_name("material-exchange-container-gui-exchange-table")
 
         local gui = player.gui.relative[gui_name]
         local exchange_table = gui[main_pane_name][exchange_table_name]
@@ -486,12 +484,12 @@ do
             local entity_item_recipe = prototypes.entity_item_recipe
             local name = entity.name
 
-            local exchange_table_row_name = core.make_gui_element_name("material-exchange-container-gui-exchange-table-row-" .. name)
-            local craft_button_name = core.make_gui_element_name("material-exchange-container-gui-exchange-table-craft-" .. name)
-            local building_ingredients_flow_name = core.make_gui_element_name("material-exchange-container-gui-exchange-table-building-ingredients-flow-" .. name)
-            local building_ingredients_panel_name = core.make_gui_element_name("material-exchange-container-gui-exchange-table-building-ingredients-panel-" .. name)
-            local building_ingredients_preview_panel_name = core.make_gui_element_name("material-exchange-container-gui-exchange-table-building-ingredients-preview-panel-" .. name)
-            local toggle_visibility_button_name = core.make_gui_element_name("material-exchange-container-gui-exchange-table-toggle-visibility-button-" .. name)
+            local exchange_table_row_name = cflib.make_gui_element_name("material-exchange-container-gui-exchange-table-row-" .. name)
+            local craft_button_name = cflib.make_gui_element_name("material-exchange-container-gui-exchange-table-craft-" .. name)
+            local building_ingredients_flow_name = cflib.make_gui_element_name("material-exchange-container-gui-exchange-table-building-ingredients-flow-" .. name)
+            local building_ingredients_panel_name = cflib.make_gui_element_name("material-exchange-container-gui-exchange-table-building-ingredients-panel-" .. name)
+            local building_ingredients_preview_panel_name = cflib.make_gui_element_name("material-exchange-container-gui-exchange-table-building-ingredients-preview-panel-" .. name)
+            local toggle_visibility_button_name = cflib.make_gui_element_name("material-exchange-container-gui-exchange-table-toggle-visibility-button-" .. name)
 
             local exchange_table_row = exchange_table[exchange_table_row_name]
             local toggle_visibility_button = exchange_table_row[toggle_visibility_button_name]
@@ -562,8 +560,8 @@ do
         local prev_filters_path = {"material_exchange_container", "prev_filters", player.index}
         local prev_filters = multi_index_get(global, prev_filters_path)
 
-        local hide_not_craftable_checkbox_name = core.make_gui_element_name("material-exchange-container-gui-hide-not-craftable")
-        local hide_not_researched_checkbox_name = core.make_gui_element_name("material-exchange-container-gui-hide-not-researched")
+        local hide_not_craftable_checkbox_name = cflib.make_gui_element_name("material-exchange-container-gui-hide-not-craftable")
+        local hide_not_researched_checkbox_name = cflib.make_gui_element_name("material-exchange-container-gui-hide-not-researched")
 
         local hide_not_craftable_checkbox = gui[hide_not_craftable_checkbox_name]
         local hide_not_researched_checkbox = gui[hide_not_researched_checkbox_name]
@@ -583,8 +581,8 @@ do
         multi_index_set(global, prev_container_contents_path, container_contents)
         multi_index_set(global, prev_filters_path, filters)
 
-        local main_pane_name = core.make_gui_element_name("material-exchange-container-gui-main-pane")
-        local exchange_table_name = core.make_gui_element_name("material-exchange-container-gui-exchange-table")
+        local main_pane_name = cflib.make_gui_element_name("material-exchange-container-gui-main-pane")
+        local exchange_table_name = cflib.make_gui_element_name("material-exchange-container-gui-exchange-table")
 
         local exchange_table = gui[main_pane_name][exchange_table_name]
 
@@ -599,18 +597,18 @@ do
 
             local is_researched = is_recipe_researched(player, entity_item_recipe)
 
-            local unlocked_by_panel_name = core.make_gui_style_name("material-exchange-container-gui-exchange-unlocked-by-" .. name)
-            local exchange_table_row_name = core.make_gui_element_name("material-exchange-container-gui-exchange-table-row-" .. name)
-            local exchange_table_row_line_name = core.make_gui_element_name("material-exchange-container-gui-exchange-table-row-line-" .. name)
-            local craft_button_name = core.make_gui_element_name("material-exchange-container-gui-exchange-table-craft-" .. name)
-            local building_ingredients_flow_name = core.make_gui_element_name("material-exchange-container-gui-exchange-table-building-ingredients-flow-" .. name)
-            local building_ingredients_panel_name = core.make_gui_element_name("material-exchange-container-gui-exchange-table-building-ingredients-panel-" .. name)
-            local building_ingredients_preview_panel_name = core.make_gui_element_name("material-exchange-container-gui-exchange-table-building-ingredients-preview-panel-" .. name)
-            local toggle_visibility_button_name = core.make_gui_element_name("material-exchange-container-gui-exchange-table-toggle-visibility-button-" .. name)
+            local unlocked_by_panel_name = cflib.make_gui_style_name("material-exchange-container-gui-exchange-unlocked-by-" .. name)
+            local exchange_table_row_name = cflib.make_gui_element_name("material-exchange-container-gui-exchange-table-row-" .. name)
+            local exchange_table_row_line_name = cflib.make_gui_element_name("material-exchange-container-gui-exchange-table-row-line-" .. name)
+            local craft_button_name = cflib.make_gui_element_name("material-exchange-container-gui-exchange-table-craft-" .. name)
+            local building_ingredients_flow_name = cflib.make_gui_element_name("material-exchange-container-gui-exchange-table-building-ingredients-flow-" .. name)
+            local building_ingredients_panel_name = cflib.make_gui_element_name("material-exchange-container-gui-exchange-table-building-ingredients-panel-" .. name)
+            local building_ingredients_preview_panel_name = cflib.make_gui_element_name("material-exchange-container-gui-exchange-table-building-ingredients-preview-panel-" .. name)
+            local toggle_visibility_button_name = cflib.make_gui_element_name("material-exchange-container-gui-exchange-table-toggle-visibility-button-" .. name)
 
-            local item_preview_style_green_name = core.make_gui_style_name("material-exchange-container-gui-exchange-table-item-preview-green")
-            local item_preview_style_yellow_name = core.make_gui_style_name("material-exchange-container-gui-exchange-table-item-preview-yellow")
-            local item_preview_style_red_name = core.make_gui_style_name("material-exchange-container-gui-exchange-table-item-preview-red")
+            local item_preview_style_green_name = cflib.make_gui_style_name("material-exchange-container-gui-exchange-table-item-preview-green")
+            local item_preview_style_yellow_name = cflib.make_gui_style_name("material-exchange-container-gui-exchange-table-item-preview-yellow")
+            local item_preview_style_red_name = cflib.make_gui_style_name("material-exchange-container-gui-exchange-table-item-preview-red")
 
             local exchange_table_row = exchange_table[exchange_table_row_name]
             local exchange_table_row_line = exchange_table[exchange_table_row_line_name]
@@ -668,13 +666,13 @@ do
     end
 
     local function setup_material_exchange_container_gui_global_events()
-        cflib.on_every_10th_tick_while_open[core.make_gui_element_name("material-exchange-container-gui")] = function(player, opened_gui)
+        cflib.on_every_10th_tick_while_open[cflib.make_gui_element_name("material-exchange-container-gui")] = function(player, opened_gui)
             local gui = opened_gui.gui
             local entity = opened_gui.entity
             update_material_exchange_container_gui(gui, entity, player)
         end
 
-        cflib.on_researched_finished_while_open[core.make_gui_element_name("material-exchange-container-gui")] = function(player, opened_gui)
+        cflib.on_researched_finished_while_open[cflib.make_gui_element_name("material-exchange-container-gui")] = function(player, opened_gui)
             local gui = opened_gui.gui
             local entity = opened_gui.entity
             update_material_exchange_container_gui(gui, entity, player)
@@ -682,7 +680,7 @@ do
     end
 
     local function get_material_exchange_container_gui(player)
-        local material_exchange_container_gui_name = core.make_gui_element_name("material-exchange-container-gui")
+        local material_exchange_container_gui_name = cflib.make_gui_element_name("material-exchange-container-gui")
 
         -- TODO: maybe stup guis for each player when they connect? would be easier to reset on config change.
         local gui = player.gui.relative[material_exchange_container_gui_name] or setup_material_exchange_container_gui(player)
@@ -700,7 +698,7 @@ do
     end
 
     local function reset_material_exchange_container_gui()
-        local material_exchange_container_gui_name = core.make_gui_element_name("material-exchange-container-gui")
+        local material_exchange_container_gui_name = cflib.make_gui_element_name("material-exchange-container-gui")
 
         for _, player in pairs(game.players) do
             if player.gui.relative[material_exchange_container_gui_name] then
@@ -747,7 +745,7 @@ do
             return
         end
 
-        if event.entity.name ~= core.make_container_name("material-exchange-container") then
+        if event.entity.name ~= cflib.make_container_name("material-exchange-container") then
             return
         end
 
@@ -771,7 +769,7 @@ do
             return
         end
 
-        if event.entity.name ~= core.make_container_name("material-exchange-container") then
+        if event.entity.name ~= cflib.make_container_name("material-exchange-container") then
             return
         end
 

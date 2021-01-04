@@ -1,57 +1,59 @@
+if not cflib then
+    cflib = {}
+end
+
 do
-    local core = {}
+    cflib.name_prefix = "composite-factory-"
+    cflib.item_group_name = cflib.name_prefix .. "items"
+    cflib.processing_recipe_group_name = cflib.name_prefix .. "processing"
+    cflib.processing_recipe_category_name = cflib.name_prefix .. "processing"
+    cflib.time_duration_indicator_sprite_name = cflib.name_prefix .. "time-duration-indicator"
+    cflib.energy_indicator_sprite_name = cflib.name_prefix .. "energy-indicator"
 
-    core.name_prefix = "composite-factory-"
-    core.item_group_name = core.name_prefix .. "items"
-    core.processing_recipe_group_name = core.name_prefix .. "processing"
-    core.processing_recipe_category_name = core.name_prefix .. "processing"
-    core.time_duration_indicator_sprite_name = core.name_prefix .. "time-duration-indicator"
-    core.energy_indicator_sprite_name = core.name_prefix .. "energy-indicator"
-
-    core.make_container_name = function(name)
-        return core.name_prefix .. name
+    cflib.make_container_name = function(name)
+        return cflib.name_prefix .. name
     end
 
-    core.make_technology_name = function(name)
-        return core.name_prefix .. name
+    cflib.make_technology_name = function(name)
+        return cflib.name_prefix .. name
     end
 
-    core.make_composite_factory_name = function(name)
-        return core.name_prefix .. name .. "-factory"
+    cflib.make_composite_factory_name = function(name)
+        return cflib.name_prefix .. name .. "-factory"
     end
 
-    core.unmake_composite_factory_name = function(name)
-        return string.sub(name, string.len(core.name_prefix) + 1, -string.len("-factory") - 1)
+    cflib.unmake_composite_factory_name = function(name)
+        return string.sub(name, string.len(cflib.name_prefix) + 1, -string.len("-factory") - 1)
     end
 
-    core.make_processing_recipe_name = function(name)
-        return core.name_prefix .. name .. "-processing"
+    cflib.make_processing_recipe_name = function(name)
+        return cflib.name_prefix .. name .. "-processing"
     end
 
-    core.make_generator_name = function(name)
-        return core.name_prefix .. name .. "-generator"
+    cflib.make_generator_name = function(name)
+        return cflib.name_prefix .. name .. "-generator"
     end
 
-    core.unmake_generator_name = function(name)
-        return string.sub(name, string.len(core.name_prefix) + 1, -string.len("-generator") - 1)
+    cflib.unmake_generator_name = function(name)
+        return string.sub(name, string.len(cflib.name_prefix) + 1, -string.len("-generator") - 1)
     end
 
-    core.make_gui_element_name = function(name)
-        return core.name_prefix .. name
+    cflib.make_gui_element_name = function(name)
+        return cflib.name_prefix .. name
     end
 
-    core.get_unprefixed_name = function(name)
-        return string.sub(name, string.len(core.name_prefix) + 1, -1)
+    cflib.get_unprefixed_name = function(name)
+        return string.sub(name, string.len(cflib.name_prefix) + 1, -1)
     end
 
-    core.is_mod_prefixed_name = function(name)
-        local found = string.find(name, core.name_prefix, 1, true)
+    cflib.is_mod_prefixed_name = function(name)
+        local found = string.find(name, cflib.name_prefix, 1, true)
         return found and found == 1
     end
 
-    core.make_gui_style_name = function(name)
-        return core.name_prefix .. name
+    cflib.make_gui_style_name = function(name)
+        return cflib.name_prefix .. name
     end
 
-    return core
+    return cflib
 end
