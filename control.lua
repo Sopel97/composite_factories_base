@@ -787,11 +787,16 @@ do
         for _, player in pairs(game.players) do
             local player_index = player.index
 
-            local opened_gui = multi_index_get(global, { "opened_guis", player_index })
+            local path = { "opened_guis", player_index }
+            local opened_gui = multi_index_get(global, path)
             if opened_gui then
-                local func = something[opened_gui.gui.name]
-                if func then
-                    func(player, opened_gui)
+                if opened_gui.entity.valid then
+                    local func = something[opened_gui.gui.name]
+                    if func then
+                        func(player, opened_gui)
+                    end
+                else
+                    multi_index_set(global, path, nil)
                 end
             end
         end
