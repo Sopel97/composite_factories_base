@@ -1,15 +1,15 @@
+core = require("lib/core")
+
+cflib = {
+    init_flags = {},
+    event_handlers = {},
+
+    -- TODO: try to unify these with event_handlers?
+    on_every_10th_tick_while_open = {},
+    on_researched_finished_while_open = {}
+}
+
 do
-    local core = require("lib/core")
-
-    local cflib = {
-        init_flags = {},
-        event_handlers = {},
-
-        -- TODO: try to unify these with event_handlers?
-        on_every_10th_tick_while_open = {},
-        on_researched_finished_while_open = {}
-    }
-
     -- TODO: utility lib?
     local function multi_index_set(table, indices, value)
         local t = table

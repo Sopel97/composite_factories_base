@@ -1,10 +1,8 @@
+core = require("lib/core")
+
+cflib = {}
+
 do
-    -- Maybe make it as a separete library mod later on?
-
-    local core = require("lib/core")
-
-    local cflib = {}
-
     cflib.gui_styles = require("prototypes/gui_styles")
 
     local function add_recipe_unlock(recipe, technology)
@@ -539,6 +537,4 @@ do
             vehicle_impact_sound = {filename = "__base__/sound/car-metal-impact.ogg", volume = 0.65}
         }})
     end
-
-    return cflib
 end

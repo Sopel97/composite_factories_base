@@ -1,6 +1,4 @@
 do
-    local core = require("core")
-
     local gui_styles = {}
 
     local data_gui_styles = data.raw["gui-style"].default
