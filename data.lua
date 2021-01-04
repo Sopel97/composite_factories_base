@@ -1,11 +1,11 @@
 do
     -- Maybe make it as a separete library mod later on?
 
-    local core = require("private/core")
+    local core = require("lib/core")
 
     local cflib = {}
 
-    cflib.gui_styles = require("private/gui_styles")
+    cflib.gui_styles = require("prototypes/gui_styles")
 
     local function add_recipe_unlock(recipe, technology)
         table.insert(data.raw.technology[technology].effects, {

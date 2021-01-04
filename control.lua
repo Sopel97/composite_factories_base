@@ -1,5 +1,5 @@
 do
-    local core = require("private/core")
+    local core = require("lib/core")
 
     local cflib = {
         init_flags = {},
