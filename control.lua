@@ -156,6 +156,7 @@ do
 
         local hide_not_craftable_checkbox_name = cflib.make_gui_element_name("material-exchange-container-gui-hide-not-craftable")
         local hide_not_researched_checkbox_name = cflib.make_gui_element_name("material-exchange-container-gui-hide-not-researched")
+        local search_textfield_name = cflib.make_gui_element_name("material-exchange-container-gui-search")
 
         local gui = player.gui.relative.add{
             type = "frame",
@@ -182,6 +183,11 @@ do
             name = hide_not_researched_checkbox_name,
             caption = {"", "Hide not researched"},
             state = true
+        }
+
+        gui.add{
+            type = "textfield",
+            name = search_textfield_name
         }
 
         local main_gui_pane = gui.add{
@@ -562,19 +568,27 @@ do
 
         local hide_not_craftable_checkbox_name = cflib.make_gui_element_name("material-exchange-container-gui-hide-not-craftable")
         local hide_not_researched_checkbox_name = cflib.make_gui_element_name("material-exchange-container-gui-hide-not-researched")
+        local search_textfield_name = cflib.make_gui_element_name("material-exchange-container-gui-search")
 
         local hide_not_craftable_checkbox = gui[hide_not_craftable_checkbox_name]
         local hide_not_researched_checkbox = gui[hide_not_researched_checkbox_name]
+        local search_textfield = gui[search_textfield_name]
 
         local container_inventory = container.get_inventory(defines.inventory.item_main)
         local container_contents = container_inventory.get_contents()
 
         local filters = {
             hide_not_craftable = hide_not_craftable_checkbox.state,
-            hide_not_researched = hide_not_researched_checkbox.state
+            hide_not_researched = hide_not_researched_checkbox.state,
+            text_contains = search_textfield.text
         }
 
-        if prev_container_contents and are_tables_equal(prev_container_contents, container_contents) and prev_filters and are_tables_equal(prev_filters, filters) then
+        local no_update_needed = true
+        no_update_needed = no_update_needed and prev_container_contents
+        no_update_needed = no_update_needed and are_tables_equal(prev_container_contents, container_contents)
+        no_update_needed = no_update_needed and prev_filters
+        no_update_needed = no_update_needed and are_tables_equal(prev_filters, filters)
+        if no_update_needed then
             return
         end
 
@@ -617,45 +631,50 @@ do
             local building_ingredients_preview_panel = building_ingredients_flow[building_ingredients_preview_panel_name]
             local building_ingredients_panel = building_ingredients_flow[building_ingredients_panel_name]
 
-            if unlocked_by then
-                local unlocked_by_panel = exchange_table_row[unlocked_by_panel_name]
+            local do_hide = (filters.text_contains and string.find(name, filters.text_contains, 1, true) == nil)
 
-                if is_researched then
-                    unlocked_by_panel.style = item_preview_style_green_name
-                elseif not hide_not_researched and can_be_researched(player, unlocked_by[1]) then
-                    unlocked_by_panel.style = item_preview_style_yellow_name
-                elseif not hide_not_researched then
-                    unlocked_by_panel.style = item_preview_style_red_name
+            if not do_hide then
+                if unlocked_by then
+                    local unlocked_by_panel = exchange_table_row[unlocked_by_panel_name]
+
+                    if is_researched then
+                        unlocked_by_panel.style = item_preview_style_green_name
+                    elseif not hide_not_researched and can_be_researched(player, unlocked_by[1]) then
+                        unlocked_by_panel.style = item_preview_style_yellow_name
+                    elseif not hide_not_researched then
+                        unlocked_by_panel.style = item_preview_style_red_name
+                    end
+                end
+
+                local update_sprite_button = function(e)
+                    local ingredient_name = e.name
+                    local required_amount = e.number
+                    local owned_amount = container_contents[ingredient_name] or 0
+                    local style = item_preview_style_green_name
+                    if owned_amount < required_amount then
+                        style = item_preview_style_red_name
+                    end
+
+                    e.tooltip = {"", owned_amount, "/", required_amount, " ", e.tooltip[6]}
+                    e.style = style
+                end
+
+                for _, e in pairs(building_ingredients_preview_panel.children) do
+                    if e.type == "sprite-button" then
+                        update_sprite_button(e)
+                    end
+                end
+
+                local is_craftable = true
+                for _, e in pairs(building_ingredients_panel.children) do
+                    if e.type == "sprite-button" then
+                        is_craftable = update_sprite_button(e) and is_craftable
+                    end
                 end
             end
 
-            local update_sprite_button = function(e)
-                local ingredient_name = e.name
-                local required_amount = e.number
-                local owned_amount = container_contents[ingredient_name] or 0
-                local style = item_preview_style_green_name
-                if owned_amount < required_amount then
-                    style = item_preview_style_red_name
-                end
+            do_hide = do_hide or (hide_not_craftable and not is_craftable) or (hide_not_researched and not is_researched)
 
-                e.tooltip = {"", owned_amount, "/", required_amount, " ", e.tooltip[6]}
-                e.style = style
-            end
-
-            for _, e in pairs(building_ingredients_preview_panel.children) do
-                if e.type == "sprite-button" then
-                    update_sprite_button(e)
-                end
-            end
-
-            local is_craftable = true
-            for _, e in pairs(building_ingredients_panel.children) do
-                if e.type == "sprite-button" then
-                    is_craftable = update_sprite_button(e) and is_craftable
-                end
-            end
-
-            local do_hide = (hide_not_craftable and not is_craftable) or (hide_not_researched and not is_researched)
             exchange_table_row.visible = not do_hide
             exchange_table_row_line.visible = not do_hide
         end
