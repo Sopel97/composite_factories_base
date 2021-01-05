@@ -626,6 +626,7 @@ do
 
             local exchange_table_row = exchange_table[exchange_table_row_name]
             local exchange_table_row_line = exchange_table[exchange_table_row_line_name]
+            local craft_button = exchange_table_row[craft_button_name]
             local toggle_visibility_button = exchange_table_row[toggle_visibility_button_name]
             local building_ingredients_flow = exchange_table_row[building_ingredients_flow_name]
             local building_ingredients_preview_panel = building_ingredients_flow[building_ingredients_preview_panel_name]
@@ -671,6 +672,8 @@ do
                         is_craftable = update_sprite_button(e) and is_craftable
                     end
                 end
+
+                craft_button.enabled = is_craftable and is_researched
             end
 
             do_hide = do_hide or (hide_not_craftable and not is_craftable) or (hide_not_researched and not is_researched)
