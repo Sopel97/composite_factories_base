@@ -660,20 +660,25 @@ do
                     e.style = style
                 end
 
+                local num_preview_ingredients = 0
                 for _, e in pairs(building_ingredients_preview_panel.children) do
                     if e.type == "sprite-button" then
                         update_sprite_button(e)
+                        num_preview_ingredients = num_preview_ingredients + 1
                     end
                 end
 
+                local num_total_ingredients = 0
                 local is_craftable = true
                 for _, e in pairs(building_ingredients_panel.children) do
                     if e.type == "sprite-button" then
                         is_craftable = update_sprite_button(e) and is_craftable
+                        num_total_ingredients = num_total_ingredients + 1
                     end
                 end
 
                 craft_button.enabled = is_craftable and is_researched
+                toggle_visibility_button.enabled = num_preview_ingredients ~= num_total_ingredients
             end
 
             do_hide = do_hide or (hide_not_craftable and not is_craftable) or (hide_not_researched and not is_researched)
