@@ -305,7 +305,13 @@ do
             }
 
             do
+                local num_items = 0
+                for _, ingredient in pairs(entity_item_recipe.ingredients) do
+                    num_items = num_items + 1
+                end
+
                 local i = 0
+
                 for _, ingredient in pairs(entity_item_recipe.ingredients) do
                     local name = ingredient.name
                     local type = ingredient.type
