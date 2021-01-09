@@ -10,6 +10,10 @@ do
     cflib.time_duration_indicator_sprite_name = cflib.name_prefix .. "time-duration-indicator"
     cflib.energy_indicator_sprite_name = cflib.name_prefix .. "energy-indicator"
 
+    cflib.make_item_subgroup_name = function(name)
+        return cflib.item_group_name .. "-" .. name
+    end
+
     cflib.make_container_name = function(name)
         return cflib.name_prefix .. name
     end

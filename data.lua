@@ -30,12 +30,6 @@ do
             icon_size = 64
         },
         {
-            type = "item-subgroup",
-            name = cflib.item_group_name,
-            group = cflib.item_group_name,
-            order = "a"
-        },
-        {
             type = "item-group",
             name = cflib.processing_recipe_group_name,
             order = "z",
@@ -76,6 +70,24 @@ do
         }
     }
 
+    cflib.add_item_subgroup = function(args)
+        local name = cflib.make_item_subgroup_name(args.name)
+        data:extend {
+            {
+                type = "item-subgroup",
+                name = name,
+                group = cflib.item_group_name,
+                order = args.order
+            }
+        }
+        return name
+    end
+
+    local container_item_subgroup = cflib.add_item_subgroup {
+        name = "container",
+        order = "a"
+    }
+
     -- The container used for material exchange.
     local function add_container(args)
         local full_name = cflib.make_container_name(args.name)
@@ -93,7 +105,7 @@ do
             icon = "__base__/graphics/icons/wooden-chest.png",
             icon_size = 64,
             icon_mipmaps = 4,
-            subgroup = cflib.item_group_name,
+            subgroup = container_item_subgroup,
             order = "a[items]-a[wooden-chest]",
             place_result = full_name,
             stack_size = 1
@@ -328,7 +340,7 @@ do
             icon = "__base__/graphics/icons/assembling-machine-1.png",
             icon_size = 64,
             flags = {},
-            subgroup = cflib.item_group_name,
+            subgroup = args.subgroup,
             order = "b",
             place_result = factory_full_name,
             stack_size = 1
@@ -465,7 +477,7 @@ do
             icon = "__base__/graphics/icons/solar-panel.png",
             icon_size = 64,
             flags = {},
-            subgroup = cflib.item_group_name,
+            subgroup = args.subgroup,
             order = "b",
             place_result = full_name,
             stack_size = 1
