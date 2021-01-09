@@ -429,7 +429,7 @@ do
     end
 
     cflib.add_composite_generator = function(args)
-        if #args.ingredients ~= 0 then
+        if args.ingredients and #args.ingredients ~= 0 then
             error("Only generators without ingredients are supported right now.")
         end
 
