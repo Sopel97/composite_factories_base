@@ -11,6 +11,16 @@ do
         return (item_preview_size + cell_padding * 2) * num_columns + cell_spacing * (num_columns - 1) + 4
     end
 
+    data_gui_styles[cflib.make_gui_style_name("material-exchange-container-gui-exchange-table-header")] = {
+        type = "vertical_flow_style",
+        left_padding = 4
+    }
+
+    data_gui_styles[cflib.make_gui_style_name("material-exchange-container-gui-exchange-table-header-cell")] = {
+        type = "label_style",
+        parent = "heading_3_label_yellow"
+    }
+
     data_gui_styles[cflib.make_gui_style_name("material-exchange-container-gui-exchange-table-craft")] = {
         type = "button_style",
         size = {item_preview_size, item_preview_size},

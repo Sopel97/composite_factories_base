@@ -153,6 +153,8 @@ do
 
         local gui_style_name = cflib.make_gui_style_name("material-exchange-container-gui")
         local exchange_table_row_style_name = cflib.make_gui_style_name("material-exchange-container-gui-exchange-table")
+        local exchange_table_header_style_name = cflib.make_gui_style_name("material-exchange-container-gui-exchange-table-header")
+        local exchange_table_header_cell_style_name = cflib.make_gui_style_name("material-exchange-container-gui-exchange-table-header-cell")
 
         local hide_not_craftable_checkbox_name = cflib.make_gui_element_name("material-exchange-container-gui-hide-not-craftable")
         local hide_not_researched_checkbox_name = cflib.make_gui_element_name("material-exchange-container-gui-hide-not-researched")
@@ -190,6 +192,12 @@ do
             name = search_textfield_name
         }
 
+        local exchange_table_header = gui.add{
+            type = "flow",
+            style = exchange_table_header_style_name,
+            direction = "vertical"
+        }
+
         local main_gui_pane = gui.add{
             type = "scroll-pane",
             name = main_pane_name,
@@ -201,6 +209,66 @@ do
             type = "flow",
             name = exchange_table_name,
             direction = "vertical"
+        }
+
+        local exchange_table_row = exchange_table_header.add{
+            type = "table",
+            name = exchange_table_row_name,
+            -- Craft | Show/hide button | Info | Tech icon | Building ingredients | Product summary | Energy required | Ingredient summary
+            column_count = 8,
+            draw_vertical_lines = true,
+            draw_horizontal_lines = true,
+            draw_horizontal_line_after_header = true,
+            vertical_centering = false,
+            style = exchange_table_row_style_name
+        }
+
+        exchange_table_row.add{
+            type = "label",
+            caption = {"", "Craft"},
+            style = exchange_table_header_cell_style_name
+        }
+
+        exchange_table_row.add{
+            type = "label",
+            caption = {"", "Expand"},
+            style = exchange_table_header_cell_style_name
+        }
+
+        exchange_table_row.add{
+            type = "label",
+            caption = {"", "Info"},
+            style = exchange_table_header_cell_style_name
+        }
+
+        exchange_table_row.add{
+            type = "label",
+            caption = {"", "Tech"},
+            style = exchange_table_header_cell_style_name
+        }
+
+        exchange_table_row.add{
+            type = "label",
+            caption = {"", "Building ingredients"},
+            style = exchange_table_header_cell_style_name
+        }
+
+        exchange_table_row.add{
+            type = "label",
+            caption = {"", "Products"},
+            style = exchange_table_header_cell_style_name
+        }
+
+        exchange_table_row.add{
+            type = "label",
+            caption = {"", "Time"},
+            style = exchange_table_header_cell_style_name
+        }
+
+        exchange_table_row.add{
+            type = "label",
+            caption = {"", "Ingredients"},
+            style = exchange_table_header_cell_style_name
         }
 
         local add_exchange_item = function(prototypes)
@@ -244,7 +312,7 @@ do
             local exchange_table_row = exchange_table.add{
                 type = "table",
                 name = exchange_table_row_name,
-                -- Craft | Show/hide button | Info | Tech icon | Icon/hidden building ingredients | Product summary | Energy required | Ingredient summary
+                -- Craft | Show/hide button | Info | Tech icon | Building ingredients | Product summary | Energy required | Ingredient summary
                 column_count = 8,
                 draw_vertical_lines = true,
                 draw_horizontal_lines = true,
