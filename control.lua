@@ -212,8 +212,8 @@ do
             local unlocked_by = prototypes.unlocked_by
 
             local entity_collision_box = entity.collision_box
-            local entity_width = math.floor(entity_collision_box.left_top.x - entity_collision_box.right_bottom.x + 0.5)
-            local entity_height = math.floor(entity_collision_box.left_top.y - entity_collision_box.right_bottom.y + 0.5)
+            local entity_width = math.floor(entity_collision_box.right_bottom.x - entity_collision_box.left_top.x + 0.5)
+            local entity_height = math.floor(entity_collision_box.right_bottom.y - entity_collision_box.left_top.y + 0.5)
 
             local info_string = "Entity size: " .. tostring(entity_width) .. "x" .. tostring(entity_height)
 
