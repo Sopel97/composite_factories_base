@@ -9,6 +9,7 @@ do
     cflib.processing_recipe_category_name = cflib.name_prefix .. "processing"
     cflib.time_duration_indicator_sprite_name = cflib.name_prefix .. "time-duration-indicator"
     cflib.energy_indicator_sprite_name = cflib.name_prefix .. "energy-indicator"
+    cflib.info_sprite_name = cflib.name_prefix .. "info"
 
     cflib.make_item_subgroup_name = function(name)
         return cflib.item_group_name .. "-" .. name

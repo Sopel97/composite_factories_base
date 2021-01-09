@@ -215,7 +215,8 @@ do
             local entity_width = math.floor(entity_collision_box.left_top.x - entity_collision_box.right_bottom.x + 0.5)
             local entity_height = math.floor(entity_collision_box.left_top.y - entity_collision_box.right_bottom.y + 0.5)
 
-            local unlocked_by_panel_name = cflib.make_gui_style_name("material-exchange-container-gui-exchange-unlocked-by-" .. name)
+            local unlocked_by_panel_name = cflib.make_gui_element_name("material-exchange-container-gui-exchange-unlocked-by-" .. name)
+            local info_button_name = cflib.make_gui_element_name("material-exchange-container-gui-exchange-table-info-" .. name)
             local exchange_table_row_name = cflib.make_gui_element_name("material-exchange-container-gui-exchange-table-row-" .. name)
             local exchange_table_row_line_name = cflib.make_gui_element_name("material-exchange-container-gui-exchange-table-row-line-" .. name)
             local craft_button_name = cflib.make_gui_element_name("material-exchange-container-gui-exchange-table-craft-" .. name)
@@ -225,6 +226,7 @@ do
             local toggle_visibility_button_name = cflib.make_gui_element_name("material-exchange-container-gui-exchange-table-toggle-visibility-button-" .. name)
 
             local craft_button_style_name = cflib.make_gui_style_name("material-exchange-container-gui-exchange-table-craft")
+            local info_button_style_name = cflib.make_gui_style_name("material-exchange-container-gui-exchange-table-info")
             local toggle_visibility_button_style_name = cflib.make_gui_style_name("material-exchange-container-gui-exchange-table-toggle-visibility-button")
             local building_ingredients_flow_style_name = cflib.make_gui_style_name("material-exchange-container-gui-exchange-table-building-ingredients-flow")
             local ingredient_summary_panel_style_name = cflib.make_gui_style_name("material-exchange-container-gui-exchange-table-ingredient-summary-panel")
@@ -241,8 +243,8 @@ do
             local exchange_table_row = exchange_table.add{
                 type = "table",
                 name = exchange_table_row_name,
-                -- Craft | Show/hide button | Tech icon | Icon/hidden building ingredients | Product summary | Energy required | Ingredient summary
-                column_count = 7,
+                -- Craft | Show/hide button | Info | Tech icon | Icon/hidden building ingredients | Product summary | Energy required | Ingredient summary
+                column_count = 8,
                 draw_vertical_lines = true,
                 draw_horizontal_lines = true,
                 draw_horizontal_line_after_header = true,
@@ -268,6 +270,15 @@ do
                 name = toggle_visibility_button_name,
                 caption = "S",
                 style = toggle_visibility_button_style_name
+            }
+
+            local info_panel = exchange_table_row.add{
+                type = "sprite-button",
+                name = info_button_name,
+                sprite = cflib.info_sprite_name,
+                style = info_button_style_name,
+                tooltip = {"", "Info"},
+                enabled = false
             }
 
             if unlocked_by then

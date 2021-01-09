@@ -70,6 +70,16 @@ do
         }
     }
 
+    data:extend {
+        {
+            type = "sprite",
+            name = cflib.info_sprite_name,
+            filename = "__base__/graphics/icons/info.png",
+            size = {64, 64},
+            mipmap_count = 4
+        }
+    }
+
     cflib.add_item_subgroup = function(args)
         local name = cflib.make_item_subgroup_name(args.name)
         data:extend {
