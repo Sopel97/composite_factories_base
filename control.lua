@@ -393,6 +393,18 @@ do
             }
 
             if processing_recipe then
+                local energy_usage_mw = entity.max_energy_usage * 60.0 / 1000000.0
+
+                if energy_usage_mw > 0 then
+                    ingredient_summary_panel.add{
+                        type = "sprite-button",
+                        sprite = cflib.energy_indicator_sprite_name,
+                        number = energy_usage_mw * 1000000,
+                        tooltip = {"", energy_usage_mw, "MW"},
+                        style = item_preview_style_normal_name
+                    }
+                end
+
                 for _, ingredient in pairs(processing_recipe.ingredients) do
                     local name = ingredient.name
                     local type = ingredient.type
