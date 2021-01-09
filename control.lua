@@ -211,6 +211,10 @@ do
             local processing_recipe = prototypes.processing_recipe
             local unlocked_by = prototypes.unlocked_by
 
+            local entity_collision_box = entity.collision_box
+            local entity_width = math.floor(entity_collision_box.left_top.x - entity_collision_box.right_bottom.x + 0.5)
+            local entity_height = math.floor(entity_collision_box.left_top.y - entity_collision_box.right_bottom.y + 0.5)
+
             local unlocked_by_panel_name = cflib.make_gui_style_name("material-exchange-container-gui-exchange-unlocked-by-" .. name)
             local exchange_table_row_name = cflib.make_gui_element_name("material-exchange-container-gui-exchange-table-row-" .. name)
             local exchange_table_row_line_name = cflib.make_gui_element_name("material-exchange-container-gui-exchange-table-row-line-" .. name)
@@ -329,7 +333,7 @@ do
 
                     building_ingredients_panel.add(args)
 
-                    if i < num_building_ingredients_columns - 1 then
+                    if i < num_building_ingredients_columns - 1 or num_items <= num_building_ingredients_columns then
                         building_ingredients_preview_panel.add(args)
                     elseif i == num_building_ingredients_columns - 1 then
                         building_ingredients_preview_panel.add{
