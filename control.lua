@@ -840,10 +840,30 @@ do
         local material_exchange_container_gui_name = cflib.make_gui_element_name("material-exchange-container-gui")
 
         for _, player in pairs(game.players) do
+            -- Needed for rewiring to the new gui
+            local path = { "opened_guis", player.index }
+            local opened_gui = multi_index_get(global, path)
+            local opened_gui_name = opened_gui and opened_gui.gui.name
+
             if player.gui.relative[material_exchange_container_gui_name] then
                 player.gui.relative[material_exchange_container_gui_name].destroy()
             end
             set_not_initialized(player, "material-exchange-container-gui-events")
+
+            -- Rewire the gui.
+            if opened_gui_name and opened_gui_name == material_exchange_container_gui_name then
+                local gui = get_material_exchange_container_gui(player)
+                opened_gui.gui = gui
+
+                -- Reset the previous state so that the gui is updated for the first time.
+                local prev_container_contents_path = {"material_exchange_container", "prev_container_contents", player.index}
+                local prev_filters_path = {"material_exchange_container", "prev_filters", player.index}
+                multi_index_set(global, prev_container_contents_path, nil)
+                multi_index_set(global, prev_filters_path, nil)
+
+                -- Update the gui because it was recreated.
+                update_material_exchange_container_gui(gui, opened_gui.entity, player)
+            end
         end
     end
 
