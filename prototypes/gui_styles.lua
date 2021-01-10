@@ -8,7 +8,7 @@ do
     local cell_padding = 0
 
     local function calc_item_preview_width(num_columns)
-        return (item_preview_size + cell_padding * 2) * num_columns + cell_spacing * (num_columns - 1) + 4
+        return (item_preview_size + cell_padding * 2) * num_columns + cell_spacing * (num_columns - 1) + 3 + 3
     end
 
     data_gui_styles[cflib.make_gui_style_name("material-exchange-container-gui-exchange-table-header")] = {
