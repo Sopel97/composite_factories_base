@@ -214,8 +214,8 @@ do
         local exchange_table_row = exchange_table_header.add{
             type = "table",
             name = exchange_table_row_name,
-            -- Craft | Show/hide button | Info | Tech icon | Building ingredients | Product summary | Energy required | Ingredient summary
-            column_count = 8,
+            -- Craft | Info | Tech icon | Building ingredients | Product summary | Energy required | Ingredient summary
+            column_count = 7,
             draw_vertical_lines = true,
             draw_horizontal_lines = true,
             draw_horizontal_line_after_header = true,
@@ -226,12 +226,6 @@ do
         exchange_table_row.add{
             type = "label",
             caption = {"", "Craft"},
-            style = exchange_table_header_cell_style_name
-        }
-
-        exchange_table_row.add{
-            type = "label",
-            caption = {"", "Expand"},
             style = exchange_table_header_cell_style_name
         }
 
@@ -292,11 +286,11 @@ do
             local building_ingredients_flow_name = cflib.make_gui_element_name("material-exchange-container-gui-exchange-table-building-ingredients-flow-" .. name)
             local building_ingredients_panel_name = cflib.make_gui_element_name("material-exchange-container-gui-exchange-table-building-ingredients-panel-" .. name)
             local building_ingredients_preview_panel_name = cflib.make_gui_element_name("material-exchange-container-gui-exchange-table-building-ingredients-preview-panel-" .. name)
-            local toggle_visibility_button_name = cflib.make_gui_element_name("material-exchange-container-gui-exchange-table-toggle-visibility-button-" .. name)
+            local expand_button_name = cflib.make_gui_element_name("material-exchange-container-gui-exchange-table-expand-button-" .. name)
+            local collapse_button_name = cflib.make_gui_element_name("material-exchange-container-gui-exchange-table-collapse-button-" .. name)
 
             local craft_button_style_name = cflib.make_gui_style_name("material-exchange-container-gui-exchange-table-craft")
             local info_button_style_name = cflib.make_gui_style_name("material-exchange-container-gui-exchange-table-info")
-            local toggle_visibility_button_style_name = cflib.make_gui_style_name("material-exchange-container-gui-exchange-table-toggle-visibility-button")
             local building_ingredients_flow_style_name = cflib.make_gui_style_name("material-exchange-container-gui-exchange-table-building-ingredients-flow")
             local ingredient_summary_panel_style_name = cflib.make_gui_style_name("material-exchange-container-gui-exchange-table-ingredient-summary-panel")
             local product_summary_panel_style_name = cflib.make_gui_style_name("material-exchange-container-gui-exchange-table-product-summary-panel")
@@ -305,6 +299,7 @@ do
             local building_ingredients_panel_style_name = cflib.make_gui_style_name("material-exchange-container-gui-exchange-table-building-ingredients-panel")
             local item_preview_style_normal_name = cflib.make_gui_style_name("material-exchange-container-gui-exchange-table-item-preview-normal")
             local item_preview_dotdotdot_style_name = cflib.make_gui_style_name("material-exchange-container-gui-exchange-table-item-preview-dotdotdot")
+            local item_preview_expand_collapse_style_name = cflib.make_gui_style_name("material-exchange-container-gui-exchange-table-item-preview-expand-collapse")
 
             local num_building_ingredients_columns = 5;
             local num_processing_recipe_ingredients_columns = 2;
@@ -313,8 +308,8 @@ do
             local exchange_table_row = exchange_table.add{
                 type = "table",
                 name = exchange_table_row_name,
-                -- Craft | Show/hide button | Info | Tech icon | Building ingredients | Product summary | Energy required | Ingredient summary
-                column_count = 8,
+                -- Craft | Info | Tech icon | Building ingredients | Product summary | Energy required | Ingredient summary
+                column_count = 7,
                 draw_vertical_lines = true,
                 draw_horizontal_lines = true,
                 draw_horizontal_line_after_header = true,
@@ -333,13 +328,6 @@ do
                 name = craft_button_name,
                 sprite = cflib.craft_button_sprite_name,
                 style = craft_button_style_name
-            }
-
-            local toggle_visibility_button = exchange_table_row.add{
-                type = "button",
-                name = toggle_visibility_button_name,
-                caption = "S",
-                style = toggle_visibility_button_style_name
             }
 
             exchange_table_row.add{
@@ -417,14 +405,24 @@ do
                         building_ingredients_preview_panel.add(args)
                     elseif i == num_building_ingredients_columns - 1 then
                         building_ingredients_preview_panel.add{
-                            type = "label",
+                            type = "button",
+                            name = expand_button_name,
                             caption = "...",
-                            style = item_preview_dotdotdot_style_name
+                            tooltip = {"", "Expand"},
+                            style = item_preview_expand_collapse_style_name
                         }
                     end
 
                     i = i + 1
                 end
+
+                building_ingredients_panel.add{
+                    type = "button",
+                    name = collapse_button_name,
+                    caption = "^^",
+                    tooltip = {"", "Collapse"},
+                    style = item_preview_expand_collapse_style_name
+                }
             end
 
             local product_summary_panel = exchange_table_row.add{
@@ -600,11 +598,11 @@ do
             local building_ingredients_flow_name = cflib.make_gui_element_name("material-exchange-container-gui-exchange-table-building-ingredients-flow-" .. name)
             local building_ingredients_panel_name = cflib.make_gui_element_name("material-exchange-container-gui-exchange-table-building-ingredients-panel-" .. name)
             local building_ingredients_preview_panel_name = cflib.make_gui_element_name("material-exchange-container-gui-exchange-table-building-ingredients-preview-panel-" .. name)
-            local toggle_visibility_button_name = cflib.make_gui_element_name("material-exchange-container-gui-exchange-table-toggle-visibility-button-" .. name)
+            local expand_button_name = cflib.make_gui_element_name("material-exchange-container-gui-exchange-table-expand-button-" .. name)
+            local collapse_button_name = cflib.make_gui_element_name("material-exchange-container-gui-exchange-table-collapse-button-" .. name)
 
             local exchange_table_row = exchange_table[exchange_table_row_name]
             local unlocked_by_button = exchange_table_row[unlocked_by_button_name]
-            local toggle_visibility_button = exchange_table_row[toggle_visibility_button_name]
             local building_ingredients_flow = exchange_table_row[building_ingredients_flow_name]
             local building_ingredients_preview_panel = building_ingredients_flow[building_ingredients_preview_panel_name]
             local building_ingredients_panel = building_ingredients_flow[building_ingredients_panel_name]
@@ -623,15 +621,14 @@ do
                 try_craft_inside_inventory(player, opened_entity, entity_item_recipe)
             end)
 
-            add_gui_event_handler(defines.events.on_gui_click, player, toggle_visibility_button_name, function(event)
-                if toggle_visibility_button.caption == "S" then
-                    toggle_visibility_button.caption = "H"
-                else
-                    toggle_visibility_button.caption = "S"
-                end
+            add_gui_event_handler(defines.events.on_gui_click, player, expand_button_name, function(event)
+                building_ingredients_preview_panel.visible = false
+                building_ingredients_panel.visible = true
+            end)
 
-                building_ingredients_preview_panel.visible = not building_ingredients_preview_panel.visible
-                building_ingredients_panel.visible = not building_ingredients_panel.visible
+            add_gui_event_handler(defines.events.on_gui_click, player, collapse_button_name, function(event)
+                building_ingredients_preview_panel.visible = true
+                building_ingredients_panel.visible = false
             end)
         end
 
@@ -732,7 +729,6 @@ do
             local building_ingredients_flow_name = cflib.make_gui_element_name("material-exchange-container-gui-exchange-table-building-ingredients-flow-" .. name)
             local building_ingredients_panel_name = cflib.make_gui_element_name("material-exchange-container-gui-exchange-table-building-ingredients-panel-" .. name)
             local building_ingredients_preview_panel_name = cflib.make_gui_element_name("material-exchange-container-gui-exchange-table-building-ingredients-preview-panel-" .. name)
-            local toggle_visibility_button_name = cflib.make_gui_element_name("material-exchange-container-gui-exchange-table-toggle-visibility-button-" .. name)
 
             local item_preview_style_green_name = cflib.make_gui_style_name("material-exchange-container-gui-exchange-table-item-preview-green")
             local item_preview_style_yellow_name = cflib.make_gui_style_name("material-exchange-container-gui-exchange-table-item-preview-yellow")
@@ -741,7 +737,6 @@ do
             local exchange_table_row = exchange_table[exchange_table_row_name]
             local exchange_table_row_line = exchange_table[exchange_table_row_line_name]
             local craft_button = exchange_table_row[craft_button_name]
-            local toggle_visibility_button = exchange_table_row[toggle_visibility_button_name]
             local building_ingredients_flow = exchange_table_row[building_ingredients_flow_name]
             local building_ingredients_preview_panel = building_ingredients_flow[building_ingredients_preview_panel_name]
             local building_ingredients_panel = building_ingredients_flow[building_ingredients_panel_name]
@@ -792,7 +787,6 @@ do
                 end
 
                 craft_button.enabled = is_craftable and is_researched
-                toggle_visibility_button.enabled = num_preview_ingredients ~= num_total_ingredients
             end
 
             do_hide = do_hide or (hide_not_craftable and not is_craftable) or (hide_not_researched and not is_researched)

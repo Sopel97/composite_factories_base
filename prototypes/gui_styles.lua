@@ -35,13 +35,6 @@ do
         size = item_preview_size
     }
 
-    data_gui_styles[cflib.make_gui_style_name("material-exchange-container-gui-exchange-table-toggle-visibility-button")] = {
-        type = "button_style",
-        size = {item_preview_size, item_preview_size},
-        horizontal_align = "center",
-        vertical_align = "center"
-    }
-
     data_gui_styles[cflib.make_gui_style_name("material-exchange-container-gui-exchange-table-building-ingredients-flow")] = {
         type = "flow_style",
         horizontal_spacing = 0,
@@ -84,22 +77,18 @@ do
             },
             {
                 column = 4,
-                width = calc_item_preview_width(1)
-            },
-            {
-                column = 5,
                 width = calc_item_preview_width(5)
             },
             {
-                column = 6,
+                column = 5,
                 width = calc_item_preview_width(2)
             },
             {
-                column = 7,
+                column = 6,
                 width = calc_item_preview_width(1)
             },
             {
-                column = 8,
+                column = 7,
                 width = calc_item_preview_width(2)
             }
         }
@@ -132,6 +121,13 @@ do
     data_gui_styles[cflib.make_gui_style_name("material-exchange-container-gui-exchange-table-item-preview-dotdotdot")] = {
         type = "label_style",
         parent = "bold_label",
+        size = item_preview_size,
+        horizontal_align = "center",
+        vertical_align = "center"
+    }
+
+    data_gui_styles[cflib.make_gui_style_name("material-exchange-container-gui-exchange-table-item-preview-expand-collapse")] = {
+        type = "button_style",
         size = item_preview_size,
         horizontal_align = "center",
         vertical_align = "center"
