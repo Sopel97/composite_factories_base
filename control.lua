@@ -285,7 +285,7 @@ do
 
             local info_string = "Entity size: " .. tostring(entity_width) .. "x" .. tostring(entity_height)
 
-            local unlocked_by_panel_name = cflib.make_gui_element_name("material-exchange-container-gui-exchange-unlocked-by-" .. name)
+            local unlocked_by_button_name = cflib.make_gui_element_name("material-exchange-container-gui-exchange-unlocked-by-" .. name)
             local exchange_table_row_name = cflib.make_gui_element_name("material-exchange-container-gui-exchange-table-row-" .. name)
             local exchange_table_row_line_name = cflib.make_gui_element_name("material-exchange-container-gui-exchange-table-row-line-" .. name)
             local craft_button_name = cflib.make_gui_element_name("material-exchange-container-gui-exchange-table-craft-" .. name)
@@ -354,7 +354,7 @@ do
 
                 exchange_table_row.add{
                     type = "sprite-button",
-                    name = unlocked_by_panel_name,
+                    name = unlocked_by_button_name,
                     sprite = "technology/" .. tech.name,
                     style = item_preview_style_normal_name,
                     tooltip = {"", tech.localised_name},
@@ -590,19 +590,30 @@ do
             local entity = prototypes.entity
             local entity_item_recipe = prototypes.entity_item_recipe
             local name = entity.name
+            local unlocked_by = prototypes.unlocked_by
 
             local exchange_table_row_name = cflib.make_gui_element_name("material-exchange-container-gui-exchange-table-row-" .. name)
             local craft_button_name = cflib.make_gui_element_name("material-exchange-container-gui-exchange-table-craft-" .. name)
+            local unlocked_by_button_name = cflib.make_gui_element_name("material-exchange-container-gui-exchange-unlocked-by-" .. name)
             local building_ingredients_flow_name = cflib.make_gui_element_name("material-exchange-container-gui-exchange-table-building-ingredients-flow-" .. name)
             local building_ingredients_panel_name = cflib.make_gui_element_name("material-exchange-container-gui-exchange-table-building-ingredients-panel-" .. name)
             local building_ingredients_preview_panel_name = cflib.make_gui_element_name("material-exchange-container-gui-exchange-table-building-ingredients-preview-panel-" .. name)
             local toggle_visibility_button_name = cflib.make_gui_element_name("material-exchange-container-gui-exchange-table-toggle-visibility-button-" .. name)
 
             local exchange_table_row = exchange_table[exchange_table_row_name]
+            local unlocked_by_button = exchange_table_row[unlocked_by_button_name]
             local toggle_visibility_button = exchange_table_row[toggle_visibility_button_name]
             local building_ingredients_flow = exchange_table_row[building_ingredients_flow_name]
             local building_ingredients_preview_panel = building_ingredients_flow[building_ingredients_preview_panel_name]
             local building_ingredients_panel = building_ingredients_flow[building_ingredients_panel_name]
+
+            if unlocked_by then
+                local tech = unlocked_by[1]
+
+                add_gui_event_handler(defines.events.on_gui_click, player, unlocked_by_button_name, function(event)
+                    player.open_technology_gui(tech)
+                end)
+            end
 
             add_gui_event_handler(defines.events.on_gui_click, player, craft_button_name, function(event)
                 local opened_entity = player.opened
@@ -712,7 +723,7 @@ do
 
             local is_researched = is_recipe_researched(player, entity_item_recipe)
 
-            local unlocked_by_panel_name = cflib.make_gui_style_name("material-exchange-container-gui-exchange-unlocked-by-" .. name)
+            local unlocked_by_button_name = cflib.make_gui_style_name("material-exchange-container-gui-exchange-unlocked-by-" .. name)
             local exchange_table_row_name = cflib.make_gui_element_name("material-exchange-container-gui-exchange-table-row-" .. name)
             local exchange_table_row_line_name = cflib.make_gui_element_name("material-exchange-container-gui-exchange-table-row-line-" .. name)
             local craft_button_name = cflib.make_gui_element_name("material-exchange-container-gui-exchange-table-craft-" .. name)
@@ -737,14 +748,14 @@ do
 
             if not do_hide then
                 if unlocked_by then
-                    local unlocked_by_panel = exchange_table_row[unlocked_by_panel_name]
+                    local unlocked_by_button = exchange_table_row[unlocked_by_button_name]
 
                     if is_researched then
-                        unlocked_by_panel.style = item_preview_style_green_name
+                        unlocked_by_button.style = item_preview_style_green_name
                     elseif not hide_not_researched and can_be_researched(player, unlocked_by[1]) then
-                        unlocked_by_panel.style = item_preview_style_yellow_name
+                        unlocked_by_button.style = item_preview_style_yellow_name
                     elseif not hide_not_researched then
-                        unlocked_by_panel.style = item_preview_style_red_name
+                        unlocked_by_button.style = item_preview_style_red_name
                     end
                 end
 
