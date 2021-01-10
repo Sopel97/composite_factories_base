@@ -694,6 +694,14 @@ do
             text_contains = search_textfield.text
         }
 
+        -- Always ensure that events work here because this is the place that's reached
+        -- when the player is looking inside the inventory, so it's the best place
+        -- to do this check.
+        if not is_initialized(player, "material-exchange-container-gui-events") then
+            setup_material_exchange_container_gui_events(player)
+            set_initialized(player, "material-exchange-container-gui-events")
+        end
+
         local no_update_needed = true
         no_update_needed = no_update_needed and prev_container_contents
         no_update_needed = no_update_needed and are_tables_equal(prev_container_contents, container_contents)
@@ -820,11 +828,6 @@ do
         -- TODO: maybe stup guis for each player when they connect? would be easier to reset on config change.
         local gui = player.gui.relative[material_exchange_container_gui_name] or setup_material_exchange_container_gui(player)
 
-        if not is_initialized(player, "material-exchange-container-gui-events") then
-            setup_material_exchange_container_gui_events(player)
-            set_initialized(player, "material-exchange-container-gui-events")
-        end
-
         return gui
     end
 
@@ -846,18 +849,18 @@ do
             end
             set_not_initialized(player, "material-exchange-container-gui-events")
 
+            -- Reset the previous state so that the gui is updated for the first time.
+            local prev_container_contents_path = {"material_exchange_container", "prev_container_contents", player.index}
+            local prev_filters_path = {"material_exchange_container", "prev_filters", player.index}
+            multi_index_set(global, prev_container_contents_path, nil)
+            multi_index_set(global, prev_filters_path, nil)
+
             -- Rewire the gui.
             if opened_gui_name and opened_gui_name == material_exchange_container_gui_name then
                 local gui = get_material_exchange_container_gui(player)
-                opened_gui.gui = gui
-
-                -- Reset the previous state so that the gui is updated for the first time.
-                local prev_container_contents_path = {"material_exchange_container", "prev_container_contents", player.index}
-                local prev_filters_path = {"material_exchange_container", "prev_filters", player.index}
-                multi_index_set(global, prev_container_contents_path, nil)
-                multi_index_set(global, prev_filters_path, nil)
 
                 -- Update the gui because it was recreated.
+                opened_gui.gui = gui
                 update_material_exchange_container_gui(gui, opened_gui.entity, player)
             end
         end
