@@ -328,9 +328,9 @@ do
             }
 
             exchange_table_row.add{
-                type = "button",
+                type = "sprite-button",
                 name = craft_button_name,
-                caption = "Craft 1",
+                sprite = cflib.craft_button_sprite_name,
                 style = craft_button_style_name
             }
 

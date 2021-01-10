@@ -23,6 +23,7 @@ do
 
     data_gui_styles[cflib.make_gui_style_name("material-exchange-container-gui-exchange-table-craft")] = {
         type = "button_style",
+        parent = "green_button",
         size = {item_preview_size, item_preview_size},
         horizontal_align = "center",
         vertical_align = "center"

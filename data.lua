@@ -80,6 +80,15 @@ do
         }
     }
 
+    data:extend {
+        {
+            type = "sprite",
+            name = cflib.craft_button_sprite_name,
+            filename = "__composite_factories_base__/graphics/icons/craft_button.png",
+            size = {64, 64}
+        }
+    }
+
     cflib.add_item_subgroup = function(args)
         local name = cflib.make_item_subgroup_name(args.name)
         data:extend {
