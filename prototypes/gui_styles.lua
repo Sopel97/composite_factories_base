@@ -129,6 +129,14 @@ do
         size = item_preview_size
     }
 
+    data_gui_styles[cflib.make_gui_style_name("material-exchange-container-gui-exchange-table-item-preview-dotdotdot")] = {
+        type = "label_style",
+        parent = "bold_label",
+        size = item_preview_size,
+        horizontal_align = "center",
+        vertical_align = "center"
+    }
+
     data_gui_styles[cflib.make_gui_style_name("material-exchange-container-gui-exchange-table-ingredient-summary-panel")] = {
         type = "table_style",
         parent = "slot_table",

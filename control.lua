@@ -304,6 +304,7 @@ do
             local building_ingredients_preview_panel_style_name = cflib.make_gui_style_name("material-exchange-container-gui-exchange-table-building-ingredients-preview-panel")
             local building_ingredients_panel_style_name = cflib.make_gui_style_name("material-exchange-container-gui-exchange-table-building-ingredients-panel")
             local item_preview_style_normal_name = cflib.make_gui_style_name("material-exchange-container-gui-exchange-table-item-preview-normal")
+            local item_preview_dotdotdot_style_name = cflib.make_gui_style_name("material-exchange-container-gui-exchange-table-item-preview-dotdotdot")
 
             local num_building_ingredients_columns = 5;
             local num_processing_recipe_ingredients_columns = 2;
@@ -417,7 +418,8 @@ do
                     elseif i == num_building_ingredients_columns - 1 then
                         building_ingredients_preview_panel.add{
                             type = "label",
-                            caption = "   ...   "
+                            caption = "...",
+                            style = item_preview_dotdotdot_style_name
                         }
                     end
 
