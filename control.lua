@@ -89,6 +89,58 @@ do
         return technologies_by_recipe
     end
 
+    get_research_depth_memo = {}
+    local function get_research_depth(tech_prototype)
+        local name = tech_prototype.name
+        local memoized_depth = get_research_depth_memo[name]
+        if memoized_depth then
+            return memoized_depth
+        else
+            local depth = 0
+            for _, parent in pairs(tech_prototype.prerequisites) do
+                local parent_depth = get_research_depth(parent)
+                depth = math.max(depth, parent_depth)
+            end
+            get_research_depth_memo[name] = depth
+            return depth
+        end
+    end
+
+    local function get_research_ordering_value(tech_prototype)
+        if not tech_prototype then
+            return 0.0
+        end
+
+        local science_level = #tech_prototype.research_unit_ingredients
+        local depth = get_research_depth(tech_prototype)
+
+        return science_level * 1000.0 + depth
+    end
+
+    local function get_entity_area(entity_prototype)
+        local collision_box = entity_prototype.collision_box
+        local width = collision_box.right_bottom.x - collision_box.left_top.x
+        local height = collision_box.right_bottom.y - collision_box.left_top.y
+        return width * height
+    end
+
+    local function get_composite_factory_ordering_value(entity, entity_item_recipe, processing_recipe, unlocked_by)
+        -- The ordering is lexicographical over (research_level, research_depth, area).
+        -- TODO: make it not use the floating point values "hack",
+        --       instead we want the ordering value to be a tuple.
+        local max_area = 1000.0 * 1000.0
+        local base_value = get_research_ordering_value(unlocked_by)
+        local value = base_value + (get_entity_area(entity) / max_area)
+        return value
+    end
+
+    local function get_composite_generator_ordering_value(entity, entity_item_recipe, unlocked_by)
+        local max_area = 1000.0 * 1000.0
+        local base_value = get_research_ordering_value(unlocked_by)
+        local value = base_value + (get_entity_area(entity) / max_area)
+        return value
+    end
+
     local function get_composite_factories_prototypes()
         local technologies_by_recipe = get_recipe_name_to_technology_map()
 
@@ -109,7 +161,8 @@ do
                         processing_recipe = processing_recipe,
                         entity_item = entity_item,
                         entity_item_recipe = entity_item_recipe,
-                        unlocked_by = technologies_by_recipe[entity_item_recipe.name]
+                        unlocked_by = technologies_by_recipe[entity_item_recipe.name],
+                        ordering_value = get_composite_factory_ordering_value(entity, entity_item_recipe, processing_recipe, unlocked_by)
                     })
                 end
             elseif e.type == "electric-energy-interface" then
@@ -122,11 +175,16 @@ do
                         entity = entity,
                         entity_item = entity_item,
                         entity_item_recipe = entity_item_recipe,
-                        unlocked_by = technologies_by_recipe[entity_item_recipe.name]
+                        unlocked_by = technologies_by_recipe[entity_item_recipe.name],
+                        ordering_value = get_composite_generator_ordering_value(entity, entity_item_recipe, unlocked_by)
                     })
                 end
             end
         end
+
+        table.sort(factories, function(lhs, rhs)
+            return lhs.ordering_value < rhs.ordering_value
+        end)
 
         return factories
     end
@@ -511,7 +569,7 @@ do
             end
         end
 
-        for _, p in pairs(global.prototypes) do
+        for _, p in ipairs(global.prototypes) do
             add_exchange_item(p)
         end
 
@@ -632,7 +690,7 @@ do
             end)
         end
 
-        for _, p in pairs(global.prototypes) do
+        for _, p in ipairs(global.prototypes) do
             add_events_for_exchange_item(p)
         end
     end
@@ -803,7 +861,7 @@ do
             exchange_table_row_line.visible = not do_hide
         end
 
-        for _, p in pairs(global.prototypes) do
+        for _, p in ipairs(global.prototypes) do
             update_exchange_item(p)
         end
     end
