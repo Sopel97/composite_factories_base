@@ -107,12 +107,54 @@ do
         order = "a"
     }
 
+    local function generate_composite_factory_picture(size)
+        local base_sprite_size = 1
+        local base_hr_sprite_size = 2
+
+        return {
+            layers = {
+                {
+                    filename = "__base__/graphics/entity/wooden-chest/wooden-chest.png",
+                    priority = "high",
+                    width = 32,
+                    height = 36,
+                    shift = util.by_pixel(0.5, -2),
+                    scale = size / base_sprite_size,
+                    hr_version = {
+                        filename = "__base__/graphics/entity/wooden-chest/hr-wooden-chest.png",
+                        priority = "high",
+                        width = 62,
+                        height = 72,
+                        shift = util.by_pixel(0.5, -2),
+                        scale = size / base_hr_sprite_size
+                    }
+                },
+                {
+                    filename = "__base__/graphics/entity/wooden-chest/wooden-chest-shadow.png",
+                    priority = "high",
+                    width = 52,
+                    height = 20,
+                    shift = util.by_pixel(10, 6.5),
+                    draw_as_shadow = true,
+                    scale = size / base_sprite_size,
+                    hr_version = {
+                        filename = "__base__/graphics/entity/wooden-chest/hr-wooden-chest-shadow.png",
+                        priority = "high",
+                        width = 104,
+                        height = 40,
+                        shift = util.by_pixel(10, 6.5),
+                        draw_as_shadow = true,
+                        scale = size / base_hr_sprite_size
+                    }
+                }
+            }
+        }
+    end
+
     -- The container used for material exchange.
     local function add_container(args)
         local full_name = cflib.make_container_name(args.name)
 
-        local base_sprite_size = 1
-        local base_hr_sprite_size = 2
         local half_size = args.size / 2
 
         local container_recipe_enabled = args.unlocked_by == nil
@@ -172,44 +214,7 @@ do
             selection_box = {{-half_size, -half_size}, {half_size, half_size}},
             inventory_size = args.num_slots,
             scale_info_icons = true,
-            picture = {
-                layers = {
-                    {
-                        filename = "__base__/graphics/entity/wooden-chest/wooden-chest.png",
-                        priority = "high",
-                        width = 32,
-                        height = 36,
-                        shift = util.by_pixel(0.5, -2),
-                        scale = args.size / base_sprite_size,
-                        hr_version = {
-                            filename = "__base__/graphics/entity/wooden-chest/hr-wooden-chest.png",
-                            priority = "high",
-                            width = 62,
-                            height = 72,
-                            shift = util.by_pixel(0.5, -2),
-                            scale = args.size / base_hr_sprite_size
-                        }
-                    },
-                    {
-                        filename = "__base__/graphics/entity/wooden-chest/wooden-chest-shadow.png",
-                        priority = "high",
-                        width = 52,
-                        height = 20,
-                        shift = util.by_pixel(10, 6.5),
-                        draw_as_shadow = true,
-                        scale = args.size / base_sprite_size,
-                        hr_version = {
-                            filename = "__base__/graphics/entity/wooden-chest/hr-wooden-chest-shadow.png",
-                            priority = "high",
-                            width = 104,
-                            height = 40,
-                            shift = util.by_pixel(10, 6.5),
-                            draw_as_shadow = true,
-                            scale = args.size / base_hr_sprite_size
-                        }
-                    }
-                }
-            }
+            picture = generate_composite_factory_picture(args.size)
         }})
 
         return full_name
