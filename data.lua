@@ -118,6 +118,9 @@ do
 
         local front_sprite_size = { 436, 164 }
 
+        local front_left_bevel_sprite_size = { 8, 164 }
+        local front_right_bevel_sprite_size = { 8, 164 }
+
         local function get_roof_height_at(x, scale)
             return (roof_slope * scale) / (roof_sprite_size[1] * scale) * x
         end
@@ -177,6 +180,22 @@ do
             )
         end
 
+        local function make_front_left_bevel_sprite(args)
+            return make_sprite(
+                args,
+                "__composite_factories_base__/graphics/entity/composite_factory_front_3_left_bevel.png",
+                front_left_bevel_sprite_size
+            )
+        end
+
+        local function make_front_right_bevel_sprite(args)
+            return make_sprite(
+                args,
+                "__composite_factories_base__/graphics/entity/composite_factory_front_3_right_bevel.png",
+                front_right_bevel_sprite_size
+            )
+        end
+
         local function make_front_sprite(args)
             return make_sprite(
                 args,
@@ -194,6 +213,24 @@ do
 
         -- We do 1 pixel of padding everywhere so that empty spaces
         -- don't show up on some zooms
+
+        local function make_front_decals(x, front_sprite_count, scale)
+            table.insert(layers, make_front_left_bevel_sprite{
+                shift = util.by_pixel(
+                    x,
+                    0
+                ),
+                scale = scale
+            })
+
+            table.insert(layers, make_front_right_bevel_sprite{
+                shift = util.by_pixel(
+                    x - front_sprite_count + (front_sprite_count * front_sprite_size[1] - front_right_bevel_sprite_size[1]) * scale,
+                    0
+                ),
+                scale = scale
+            })
+        end
 
         local function make_front()
             local front_inset_pixels = 16
@@ -215,6 +252,12 @@ do
                     scale = front_sprite_scale
                 })
             end
+
+            make_front_decals(
+                front_inset_pixels,
+                num_front_sprites,
+                front_sprite_scale
+            )
         end
 
         local function make_roof()
@@ -251,8 +294,6 @@ do
                 end
 
                 for y=0,ymax do
-                    local bit_width = roof_apparent_size[1] * width_slice
-
                     -- -x/y for padding (we overlap by 1 pixel)
                     table.insert(layers, make_roof_left_sprite{
                         shift = util.by_pixel(
@@ -265,7 +306,7 @@ do
 
                     table.insert(layers, make_roof_right_sprite{
                         shift = util.by_pixel(
-                            size * tile_size_in_pixels - x*roof_apparent_size[1]*roof_sprite_scale - bit_width*roof_sprite_scale + x,
+                            size * tile_size_in_pixels - x*roof_apparent_size[1]*roof_sprite_scale - roof_apparent_size[1]*width_slice*roof_sprite_scale + x,
                             -(y*roof_apparent_size[2]+x*roof_slope)*roof_sprite_scale - building_height_pixels + y
                         ),
                         scale = roof_sprite_scale,
