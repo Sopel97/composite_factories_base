@@ -108,20 +108,133 @@ do
     }
 
     local function generate_composite_factory_picture(size)
-        local base_sprite_size = 1
+        local tile_size_in_pixels = 32
 
-        return {
-            layers = {
-                {
-                    filename = "__base__/graphics/entity/wooden-chest/wooden-chest.png",
-                    priority = "high",
-                    width = 32,
-                    height = 36,
-                    shift = util.by_pixel(0.5, -2),
-                    scale = size / base_sprite_size
-                }
+        local half_size = size / 2
+
+        local roof_sprite_size = { 436, 228 }
+        local roof_apparent_size = { 436, 219 }
+        local roof_slope = 10.0
+
+        local function get_roof_height_at(x, scale)
+            return (roof_slope * scale) / (roof_sprite_size[1] * scale) * x
+        end
+
+        -- The position is relative to bottom left corner
+        local function make_roof_sprite(filename, args)
+            if not args.width_slice then
+                args.width_slice = 1
+            end
+
+            if not args.scale then
+                args.scale = 1
+            end
+
+            if not args.shift then
+                args.shift = { 0, 0 }
+            end
+
+            local sprite_size = {
+                roof_sprite_size[1] * args.width_slice,
+                roof_sprite_size[2]
             }
+
+            args.shift[1] = args.shift[1] - half_size + args.scale * sprite_size[1] / 2 / tile_size_in_pixels
+            args.shift[2] = args.shift[2] + half_size - args.scale * sprite_size[2] / 2 / tile_size_in_pixels
+
+            local sprite = {
+                filename = filename,
+                priority = "medium",
+                size = sprite_size
+            }
+
+            for k, v in pairs(args) do
+                sprite[k] = v
+            end
+
+            return sprite
+        end
+
+        local function make_roof_left_sprite(args)
+            return make_roof_sprite("__composite_factories_base__/graphics/entity/composite_factory_roof_left.png", args)
+        end
+
+        -- The position is relative to bottom left corner
+        local function make_roof_right_sprite(args)
+            if not args.width_slice then
+                args.width_slice = 1
+            end
+            args.x = roof_sprite_size[1] * (1-args.width_slice)
+            return make_roof_sprite("__composite_factories_base__/graphics/entity/composite_factory_roof_right.png", args)
+        end
+
+        local layers = {}
+
+        local entity_size_in_pixels = {
+            size * tile_size_in_pixels,
+            size * tile_size_in_pixels
         }
+
+        -- We do 1 pixel of padding everywhere so that empty spaces
+        -- don't show up on some zooms
+
+        -- This will be a fraction amount
+        local ideal_num_roof_sprites = {
+            entity_size_in_pixels[1] / (roof_apparent_size[1] - 1),
+            entity_size_in_pixels[2] / (roof_apparent_size[2] - 1)
+        }
+
+        -- We can only cut the roof sprite on the left/right, not from top/bottom
+        -- so we have to have an integer amount of sprites in the y direction
+        -- and a possibly fractional amount in the x direction
+        -- And we can't have separate scales for x and y...
+        local roof_sprite_scale = ideal_num_roof_sprites[2] / math.floor(ideal_num_roof_sprites[2])
+
+        local num_roof_sprites = {
+            -- Divided by 2 because it's for one side
+            entity_size_in_pixels[1] / (roof_apparent_size[1] * roof_sprite_scale) / 2,
+            math.floor(ideal_num_roof_sprites[2])
+        }
+
+        local building_height_pixels = 64
+
+        local xmax = math.floor(num_roof_sprites[1])
+        local ymax = num_roof_sprites[2]-1
+        for x=0,xmax do
+            local width_slice = 1
+            if x == xmax then
+                -- Add one pixel so it doesn't produce a gap on some zooms
+                width_slice = num_roof_sprites[1] - math.floor(num_roof_sprites[1]) + 1.0 / 32.0
+                if width_slice < 0.001 then
+                    break
+                end
+            end
+
+            for y=0,ymax do
+                local bit_width = roof_apparent_size[1] * width_slice
+
+                -- -x/y for padding (we overlap by 1 pixel)
+                table.insert(layers, make_roof_left_sprite{
+                    shift = util.by_pixel(
+                        x*roof_apparent_size[1]*roof_sprite_scale - x,
+                        -(y*roof_apparent_size[2]+x*roof_slope)*roof_sprite_scale - building_height_pixels + y
+                    ),
+                    scale = roof_sprite_scale,
+                    width_slice = width_slice
+                })
+
+                table.insert(layers, make_roof_right_sprite{
+                    shift = util.by_pixel(
+                        size * tile_size_in_pixels - x*roof_apparent_size[1]*roof_sprite_scale - bit_width*roof_sprite_scale + x,
+                        -(y*roof_apparent_size[2]+x*roof_slope)*roof_sprite_scale - building_height_pixels + y
+                    ),
+                    scale = roof_sprite_scale,
+                    width_slice = width_slice
+                })
+            end
+        end
+
+        return { layers = layers }
     end
 
     -- The container used for material exchange.
@@ -129,6 +242,8 @@ do
         local full_name = cflib.make_container_name(args.name)
 
         local half_size = args.size / 2
+        local base_sprite_size = 1
+        local base_hr_sprite_size = 2
 
         local container_recipe_enabled = args.unlocked_by == nil
 
@@ -187,7 +302,44 @@ do
             selection_box = {{-half_size, -half_size}, {half_size, half_size}},
             inventory_size = args.num_slots,
             scale_info_icons = true,
-            picture = generate_composite_factory_picture(args.size)
+            picture = {
+                layers = {
+                    {
+                        filename = "__base__/graphics/entity/wooden-chest/wooden-chest.png",
+                        priority = "high",
+                        width = 32,
+                        height = 36,
+                        shift = util.by_pixel(0.5, -2),
+                        scale = args.size / base_sprite_size,
+                        hr_version = {
+                            filename = "__base__/graphics/entity/wooden-chest/hr-wooden-chest.png",
+                            priority = "high",
+                            width = 62,
+                            height = 72,
+                            shift = util.by_pixel(0.5, -2),
+                            scale = args.size / base_hr_sprite_size
+                        }
+                    },
+                    {
+                        filename = "__base__/graphics/entity/wooden-chest/wooden-chest-shadow.png",
+                        priority = "high",
+                        width = 52,
+                        height = 20,
+                        shift = util.by_pixel(10, 6.5),
+                        draw_as_shadow = true,
+                        scale = args.size / base_sprite_size,
+                        hr_version = {
+                            filename = "__base__/graphics/entity/wooden-chest/hr-wooden-chest-shadow.png",
+                            priority = "high",
+                            width = 104,
+                            height = 40,
+                            shift = util.by_pixel(10, 6.5),
+                            draw_as_shadow = true,
+                            scale = args.size / base_hr_sprite_size
+                        }
+                    }
+                }
+            }
         }})
 
         return full_name
@@ -372,54 +524,7 @@ do
                 drain = "0W"
             },
             energy_usage = args.energy_usage,
-            animation = {
-                layers = {
-                    {
-                        filename = "__base__/graphics/entity/assembling-machine-1/assembling-machine-1.png",
-                        priority="high",
-                        width = 108,
-                        height = 114,
-                        frame_count = 32,
-                        line_length = 8,
-                        shift = util.by_pixel(0, 2),
-                        scale = args.size / base_sprite_size,
-                        hr_version = {
-                            filename = "__base__/graphics/entity/assembling-machine-1/hr-assembling-machine-1.png",
-                            priority="high",
-                            width = 214,
-                            height = 226,
-                            frame_count = 32,
-                            line_length = 8,
-                            shift = util.by_pixel(0, 2),
-                            scale = args.size / base_hr_sprite_size
-                        }
-                    },
-                    {
-                        filename = "__base__/graphics/entity/assembling-machine-1/assembling-machine-1-shadow.png",
-                        priority="high",
-                        width = 95,
-                        height = 83,
-                        frame_count = 1,
-                        line_length = 1,
-                        repeat_count = 32,
-                        draw_as_shadow = true,
-                        shift = util.by_pixel(8.5, 5.5),
-                        scale = args.size / base_sprite_size,
-                        hr_version = {
-                            filename = "__base__/graphics/entity/assembling-machine-1/hr-assembling-machine-1-shadow.png",
-                            priority="high",
-                            width = 190,
-                            height = 165,
-                            frame_count = 1,
-                            line_length = 1,
-                            repeat_count = 32,
-                            draw_as_shadow = true,
-                            shift = util.by_pixel(8.5, 5),
-                            scale = args.size / base_hr_sprite_size
-                        }
-                    }
-                }
-            },
+            animation = generate_composite_factory_picture(args.size),
             fluid_boxes = fluid_boxes,
             vehicle_impact_sound = {filename = "__base__/sound/car-metal-impact.ogg", volume = 0.65},
             working_sound =
