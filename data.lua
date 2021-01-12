@@ -737,6 +737,13 @@ do
         unlocked_by = cflib.base_technology
     }
 
+    local function adjust_fluid_box_position(position)
+        return {
+            math.floor(position[1] + 0.5) + 0.5,
+            position[2]
+        }
+    end
+
     cflib.add_composite_factory = function(args)
         local factory_full_name = cflib.make_composite_factory_name(args.name)
         local processing_full_name = cflib.make_processing_recipe_name(args.name)
@@ -756,26 +763,30 @@ do
 
         local fluid_input_spacing = args.size / (num_fluid_inputs+1)
         for i=1, num_fluid_inputs do
+            local position = adjust_fluid_box_position({-half_size + i * fluid_input_spacing, -half_size-0.5})
+
             table.insert(fluid_boxes, {
                 production_type = "input",
                 pipe_picture = assembler2pipepictures(),
                 pipe_covers = pipecoverspictures(),
                 base_area = 10,
                 base_level = -1,
-                pipe_connections = {{ type="input", position = {-half_size + i * fluid_input_spacing, -half_size-0.5} }},
+                pipe_connections = {{ type="input", position = position }},
                 secondary_draw_orders = { north = -1 }
             })
         end
 
         local fluid_output_spacing = args.size / (num_fluid_outputs+1)
         for i=1, num_fluid_outputs do
+            local position = adjust_fluid_box_position({-half_size + i * fluid_output_spacing, half_size+0.5})
+
             table.insert(fluid_boxes, {
                 production_type = "output",
                 pipe_picture = assembler2pipepictures(),
                 pipe_covers = pipecoverspictures(),
                 base_area = 10,
                 base_level = -1,
-                pipe_connections = {{ type="output", position = {-half_size + i * fluid_output_spacing, half_size+0.5} }},
+                pipe_connections = {{ type="output", position = position }},
                 secondary_draw_orders = { north = -1 }
             })
         end
