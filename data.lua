@@ -123,6 +123,8 @@ do
 
         local roof_corner_bevel_sprite_size = { 16, 16 }
 
+        local roof_shadow_sprite_size = { 436, 42 }
+
         local front_sprite_size = { 436, 164 }
 
         local front_left_bevel_sprite_size = { 8, 164 }
@@ -250,6 +252,29 @@ do
             )
         end
 
+        local function make_roof_left_shadow_sprite(args)
+            return make_sprite(
+                args,
+                "__composite_factories_base__/graphics/entity/composite_factory_shadow_front_left.png",
+                roof_shadow_sprite_size
+            )
+        end
+
+        local function make_roof_right_shadow_sprite(args)
+            if not args.width_slice then
+                args.width_slice = 1
+            end
+            if not args.x then
+                args.x = 0
+            end
+            args.x = args.x + roof_corner_bevel_sprite_size[1] * (1-args.width_slice)
+            return make_sprite(
+                args,
+                "__composite_factories_base__/graphics/entity/composite_factory_shadow_front_right.png",
+                roof_shadow_sprite_size
+            )
+        end
+
         local function make_front_left_bevel_sprite(args)
             return make_sprite(
                 args,
@@ -335,7 +360,7 @@ do
                 local width_slice = 1
                 if x == xmax then
                     -- Add one pixel so it doesn't produce a gap on some zooms
-                    width_slice = num_roof_sprites[1] - math.floor(num_roof_sprites[1]) + 1.0 / 32.0
+                    width_slice = num_roof_sprites[1] - math.floor(num_roof_sprites[1]) + 0.005
                     if width_slice < 0.001 then
                         break
                     end
@@ -405,10 +430,53 @@ do
             })
         end
 
+        local function make_roof_shadow(num_roof_sprites, roof_sprite_scale)
+            local xmax = math.floor(num_roof_sprites[1])
+            local ymax = num_roof_sprites[2]-1
+            for x=0,xmax do
+                local width_slice = 1
+                if x == xmax then
+                    -- Add one pixel so it doesn't produce a gap on some zooms
+                    width_slice = num_roof_sprites[1] - math.floor(num_roof_sprites[1]) + 0.005
+                    if width_slice < 0.001 then
+                        break
+                    end
+                end
+
+                local xstart = 0
+                if x == 0 then
+                    xstart = front_inset_pixels
+                    width_slice = width_slice - front_inset_pixels / roof_shadow_sprite_size[1]
+                end
+
+                -- -x/y for padding (we overlap by 1 pixel)
+                table.insert(layers, make_roof_left_shadow_sprite{
+                    shift = util.by_pixel(
+                        xstart + x*roof_shadow_sprite_size[1]*roof_sprite_scale - x,
+                        -(x+1)*roof_slope*roof_sprite_scale - building_height_pixels + roof_shadow_sprite_size[2] * roof_sprite_scale - 1
+                    ),
+                    scale = roof_sprite_scale,
+                    width_slice = width_slice,
+                    x = xstart
+                })
+
+                table.insert(layers, make_roof_right_shadow_sprite{
+                    shift = util.by_pixel(
+                        size * tile_size_in_pixels - xstart - x*roof_shadow_sprite_size[1]*roof_sprite_scale - roof_shadow_sprite_size[1]*width_slice*roof_sprite_scale + x,
+                        -(x+1)*roof_slope*roof_sprite_scale - building_height_pixels + roof_shadow_sprite_size[2] * roof_sprite_scale - 1
+                    ),
+                    scale = roof_sprite_scale,
+                    width_slice = width_slice,
+                    x = xstart
+                })
+            end
+        end
+
         local function make_roof_decals(num_roof_sprites, roof_sprite_scale)
             make_roof_bottom_bevel(num_roof_sprites, roof_sprite_scale)
             make_roof_side_bevel(num_roof_sprites, roof_sprite_scale)
             make_roof_corner_bevel(num_roof_sprites, roof_sprite_scale)
+            make_roof_shadow(num_roof_sprites, roof_sprite_scale)
         end
 
         local function make_roof()
@@ -436,7 +504,7 @@ do
                 local width_slice = 1
                 if x == xmax then
                     -- Add one pixel so it doesn't produce a gap on some zooms
-                    width_slice = num_roof_sprites[1] - math.floor(num_roof_sprites[1]) + 1.0 / 32.0
+                    width_slice = num_roof_sprites[1] - math.floor(num_roof_sprites[1]) + 0.005
                     if width_slice < 0.001 then
                         break
                     end
