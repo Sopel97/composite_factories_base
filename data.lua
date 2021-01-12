@@ -130,6 +130,8 @@ do
         local front_left_bevel_sprite_size = { 8, 164 }
         local front_right_bevel_sprite_size = { 8, 164 }
 
+        local shadow_sprite_size = { 106, 228 }
+
         local building_height_pixels = 64
         local front_inset_pixels = 16
 
@@ -267,7 +269,7 @@ do
             if not args.x then
                 args.x = 0
             end
-            args.x = args.x + roof_corner_bevel_sprite_size[1] * (1-args.width_slice)
+            args.x = args.x + roof_shadow_sprite_size[1] * (1-args.width_slice)
             return make_sprite(
                 args,
                 "__composite_factories_base__/graphics/entity/composite_factory_shadow_front_right.png",
@@ -299,6 +301,14 @@ do
             )
         end
 
+        local function make_shadow_sprite(args)
+            return make_sprite(
+                args,
+                "__composite_factories_base__/graphics/entity/composite_factory_shadow.png",
+                shadow_sprite_size
+            )
+        end
+
         local layers = {}
 
         local entity_size_in_pixels = {
@@ -320,7 +330,7 @@ do
 
             table.insert(layers, make_front_right_bevel_sprite{
                 shift = util.by_pixel(
-                    x - front_sprite_count + (front_sprite_count * front_sprite_size[1] - front_right_bevel_sprite_size[1]) * scale,
+                    x - front_sprite_count + (front_sprite_count * front_sprite_size[1] - front_right_bevel_sprite_size[1]) * scale + 1,
                     0
                 ),
                 scale = scale
@@ -535,8 +545,43 @@ do
             make_roof_decals(num_roof_sprites, roof_sprite_scale)
         end
 
+        local function make_shadow()
+            -- This will be a fraction amount
+            local ideal_num_roof_sprites = {
+                entity_size_in_pixels[1] / (roof_apparent_size[1] - 1),
+                entity_size_in_pixels[2] / (roof_apparent_size[2] - 1)
+            }
+
+            -- We can only cut the roof sprite on the left/right, not from top/bottom
+            -- so we have to have an integer amount of sprites in the y direction
+            -- and a possibly fractional amount in the x direction
+            -- And we can't have separate scales for x and y...
+            local roof_sprite_scale = ideal_num_roof_sprites[2] / math.floor(ideal_num_roof_sprites[2])
+
+            local num_roof_sprites = {
+                -- Divided by 2 because it's for one side
+                entity_size_in_pixels[1] / (roof_apparent_size[1] * roof_sprite_scale) / 2,
+                math.floor(ideal_num_roof_sprites[2])
+            }
+
+            local xmax = math.floor(num_roof_sprites[1])
+            local ymax = num_roof_sprites[2]-1
+            for y=0,ymax do
+                -- -x/y for padding (we overlap by 1 pixel)
+                table.insert(layers, make_shadow_sprite{
+                    shift = util.by_pixel(
+                        size * tile_size_in_pixels - front_inset_pixels,
+                        -y*roof_apparent_size[2]*roof_sprite_scale + y
+                    ),
+                    scale = roof_sprite_scale,
+                    draw_as_shadow = true
+                })
+            end
+        end
+
         make_front()
         make_roof()
+        make_shadow()
 
         return { layers = layers }
     end
