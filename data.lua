@@ -116,12 +116,14 @@ do
         local roof_apparent_size = { 436, 219 }
         local roof_slope = 10.0
 
+        local front_sprite_size = { 436, 164 }
+
         local function get_roof_height_at(x, scale)
             return (roof_slope * scale) / (roof_sprite_size[1] * scale) * x
         end
 
         -- The position is relative to bottom left corner
-        local function make_roof_sprite(filename, args)
+        local function make_sprite(args, filename, raw_sprite_size)
             if not args.width_slice then
                 args.width_slice = 1
             end
@@ -135,8 +137,8 @@ do
             end
 
             local sprite_size = {
-                roof_sprite_size[1] * args.width_slice,
-                roof_sprite_size[2]
+                raw_sprite_size[1] * args.width_slice,
+                raw_sprite_size[2]
             }
 
             args.shift[1] = args.shift[1] - half_size + args.scale * sprite_size[1] / 2 / tile_size_in_pixels
@@ -156,16 +158,31 @@ do
         end
 
         local function make_roof_left_sprite(args)
-            return make_roof_sprite("__composite_factories_base__/graphics/entity/composite_factory_roof_left.png", args)
+            return make_sprite(
+                args,
+                "__composite_factories_base__/graphics/entity/composite_factory_roof_left.png",
+                roof_sprite_size
+            )
         end
 
-        -- The position is relative to bottom left corner
         local function make_roof_right_sprite(args)
             if not args.width_slice then
                 args.width_slice = 1
             end
             args.x = roof_sprite_size[1] * (1-args.width_slice)
-            return make_roof_sprite("__composite_factories_base__/graphics/entity/composite_factory_roof_right.png", args)
+            return make_sprite(
+                args,
+                "__composite_factories_base__/graphics/entity/composite_factory_roof_right.png",
+                roof_sprite_size
+            )
+        end
+
+        local function make_front_sprite(args)
+            return make_sprite(
+                args,
+                "__composite_factories_base__/graphics/entity/composite_factory_front_3.png",
+                front_sprite_size
+            )
         end
 
         local layers = {}
@@ -178,61 +195,88 @@ do
         -- We do 1 pixel of padding everywhere so that empty spaces
         -- don't show up on some zooms
 
-        -- This will be a fraction amount
-        local ideal_num_roof_sprites = {
-            entity_size_in_pixels[1] / (roof_apparent_size[1] - 1),
-            entity_size_in_pixels[2] / (roof_apparent_size[2] - 1)
-        }
+        local function make_front()
+            local front_inset_pixels = 16
 
-        -- We can only cut the roof sprite on the left/right, not from top/bottom
-        -- so we have to have an integer amount of sprites in the y direction
-        -- and a possibly fractional amount in the x direction
-        -- And we can't have separate scales for x and y...
-        local roof_sprite_scale = ideal_num_roof_sprites[2] / math.floor(ideal_num_roof_sprites[2])
+            local ideal_num_front_sprites = (entity_size_in_pixels[1] - front_inset_pixels * 2) / (front_sprite_size[1] - 1)
 
-        local num_roof_sprites = {
-            -- Divided by 2 because it's for one side
-            entity_size_in_pixels[1] / (roof_apparent_size[1] * roof_sprite_scale) / 2,
-            math.floor(ideal_num_roof_sprites[2])
-        }
+            local front_sprite_scale = ideal_num_front_sprites / math.floor(ideal_num_front_sprites)
 
-        local building_height_pixels = 64
+            local num_front_sprites = math.floor(ideal_num_front_sprites)
 
-        local xmax = math.floor(num_roof_sprites[1])
-        local ymax = num_roof_sprites[2]-1
-        for x=0,xmax do
-            local width_slice = 1
-            if x == xmax then
-                -- Add one pixel so it doesn't produce a gap on some zooms
-                width_slice = num_roof_sprites[1] - math.floor(num_roof_sprites[1]) + 1.0 / 32.0
-                if width_slice < 0.001 then
-                    break
-                end
-            end
-
-            for y=0,ymax do
-                local bit_width = roof_apparent_size[1] * width_slice
-
+            local xmax = num_front_sprites-1
+            for x=0,xmax do
                 -- -x/y for padding (we overlap by 1 pixel)
-                table.insert(layers, make_roof_left_sprite{
+                table.insert(layers, make_front_sprite{
                     shift = util.by_pixel(
-                        x*roof_apparent_size[1]*roof_sprite_scale - x,
-                        -(y*roof_apparent_size[2]+x*roof_slope)*roof_sprite_scale - building_height_pixels + y
+                        x*front_sprite_size[1]*front_sprite_scale - x + front_inset_pixels,
+                        0
                     ),
-                    scale = roof_sprite_scale,
-                    width_slice = width_slice
-                })
-
-                table.insert(layers, make_roof_right_sprite{
-                    shift = util.by_pixel(
-                        size * tile_size_in_pixels - x*roof_apparent_size[1]*roof_sprite_scale - bit_width*roof_sprite_scale + x,
-                        -(y*roof_apparent_size[2]+x*roof_slope)*roof_sprite_scale - building_height_pixels + y
-                    ),
-                    scale = roof_sprite_scale,
-                    width_slice = width_slice
+                    scale = front_sprite_scale
                 })
             end
         end
+
+        local function make_roof()
+            -- This will be a fraction amount
+            local ideal_num_roof_sprites = {
+                entity_size_in_pixels[1] / (roof_apparent_size[1] - 1),
+                entity_size_in_pixels[2] / (roof_apparent_size[2] - 1)
+            }
+
+            -- We can only cut the roof sprite on the left/right, not from top/bottom
+            -- so we have to have an integer amount of sprites in the y direction
+            -- and a possibly fractional amount in the x direction
+            -- And we can't have separate scales for x and y...
+            local roof_sprite_scale = ideal_num_roof_sprites[2] / math.floor(ideal_num_roof_sprites[2])
+
+            local num_roof_sprites = {
+                -- Divided by 2 because it's for one side
+                entity_size_in_pixels[1] / (roof_apparent_size[1] * roof_sprite_scale) / 2,
+                math.floor(ideal_num_roof_sprites[2])
+            }
+
+            local building_height_pixels = 64
+
+            local xmax = math.floor(num_roof_sprites[1])
+            local ymax = num_roof_sprites[2]-1
+            for x=0,xmax do
+                local width_slice = 1
+                if x == xmax then
+                    -- Add one pixel so it doesn't produce a gap on some zooms
+                    width_slice = num_roof_sprites[1] - math.floor(num_roof_sprites[1]) + 1.0 / 32.0
+                    if width_slice < 0.001 then
+                        break
+                    end
+                end
+
+                for y=0,ymax do
+                    local bit_width = roof_apparent_size[1] * width_slice
+
+                    -- -x/y for padding (we overlap by 1 pixel)
+                    table.insert(layers, make_roof_left_sprite{
+                        shift = util.by_pixel(
+                            x*roof_apparent_size[1]*roof_sprite_scale - x,
+                            -(y*roof_apparent_size[2]+x*roof_slope)*roof_sprite_scale - building_height_pixels + y
+                        ),
+                        scale = roof_sprite_scale,
+                        width_slice = width_slice
+                    })
+
+                    table.insert(layers, make_roof_right_sprite{
+                        shift = util.by_pixel(
+                            size * tile_size_in_pixels - x*roof_apparent_size[1]*roof_sprite_scale - bit_width*roof_sprite_scale + x,
+                            -(y*roof_apparent_size[2]+x*roof_slope)*roof_sprite_scale - building_height_pixels + y
+                        ),
+                        scale = roof_sprite_scale,
+                        width_slice = width_slice
+                    })
+                end
+            end
+        end
+
+        make_front()
+        make_roof()
 
         return { layers = layers }
     end
