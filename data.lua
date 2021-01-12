@@ -116,10 +116,20 @@ do
         local roof_apparent_size = { 436, 219 }
         local roof_slope = 10.0
 
+        local roof_bottom_bevel_sprite_size = { 436, 16 }
+        local roof_bottom_bevel_apparent_size = { 436, 6 }
+
+        local roof_side_bevel_sprite_size = { 8, 228 }
+
+        local roof_corner_bevel_sprite_size = { 16, 16 }
+
         local front_sprite_size = { 436, 164 }
 
         local front_left_bevel_sprite_size = { 8, 164 }
         local front_right_bevel_sprite_size = { 8, 164 }
+
+        local building_height_pixels = 64
+        local front_inset_pixels = 16
 
         local function get_roof_height_at(x, scale)
             return (roof_slope * scale) / (roof_sprite_size[1] * scale) * x
@@ -180,6 +190,66 @@ do
             )
         end
 
+        local function make_roof_left_bottom_bevel_sprite(args)
+            return make_sprite(
+                args,
+                "__composite_factories_base__/graphics/entity/composite_factory_roof_left_bottom_bevel.png",
+                roof_bottom_bevel_sprite_size
+            )
+        end
+
+        local function make_roof_right_bottom_bevel_sprite(args)
+            if not args.width_slice then
+                args.width_slice = 1
+            end
+            args.x = roof_bottom_bevel_sprite_size[1] * (1-args.width_slice)
+            return make_sprite(
+                args,
+                "__composite_factories_base__/graphics/entity/composite_factory_roof_right_bottom_bevel.png",
+                roof_bottom_bevel_sprite_size
+            )
+        end
+
+        local function make_roof_left_left_bevel_sprite(args)
+            return make_sprite(
+                args,
+                "__composite_factories_base__/graphics/entity/composite_factory_roof_left_left_bevel.png",
+                roof_side_bevel_sprite_size
+            )
+        end
+
+        local function make_roof_right_right_bevel_sprite(args)
+            if not args.width_slice then
+                args.width_slice = 1
+            end
+            args.x = roof_side_bevel_sprite_size[1] * (1-args.width_slice)
+            return make_sprite(
+                args,
+                "__composite_factories_base__/graphics/entity/composite_factory_roof_right_right_bevel.png",
+                roof_side_bevel_sprite_size
+            )
+        end
+
+        local function make_roof_left_bottom_left_bevel_sprite(args)
+            return make_sprite(
+                args,
+                "__composite_factories_base__/graphics/entity/composite_factory_roof_left_bottom_left_bevel.png",
+                roof_corner_bevel_sprite_size
+            )
+        end
+
+        local function make_roof_right_bottom_right_bevel_sprite(args)
+            if not args.width_slice then
+                args.width_slice = 1
+            end
+            args.x = roof_corner_bevel_sprite_size[1] * (1-args.width_slice)
+            return make_sprite(
+                args,
+                "__composite_factories_base__/graphics/entity/composite_factory_roof_right_bottom_right_bevel.png",
+                roof_corner_bevel_sprite_size
+            )
+        end
+
         local function make_front_left_bevel_sprite(args)
             return make_sprite(
                 args,
@@ -233,8 +303,6 @@ do
         end
 
         local function make_front()
-            local front_inset_pixels = 16
-
             local ideal_num_front_sprites = (entity_size_in_pixels[1] - front_inset_pixels * 2) / (front_sprite_size[1] - 1)
 
             local front_sprite_scale = ideal_num_front_sprites / math.floor(ideal_num_front_sprites)
@@ -260,6 +328,89 @@ do
             )
         end
 
+        local function make_roof_bottom_bevel(num_roof_sprites, roof_sprite_scale)
+            local xmax = math.floor(num_roof_sprites[1])
+            local ymax = num_roof_sprites[2]-1
+            for x=0,xmax do
+                local width_slice = 1
+                if x == xmax then
+                    -- Add one pixel so it doesn't produce a gap on some zooms
+                    width_slice = num_roof_sprites[1] - math.floor(num_roof_sprites[1]) + 1.0 / 32.0
+                    if width_slice < 0.001 then
+                        break
+                    end
+                end
+
+                -- -x/y for padding (we overlap by 1 pixel)
+                table.insert(layers, make_roof_left_bottom_bevel_sprite{
+                    shift = util.by_pixel(
+                        x*roof_apparent_size[1]*roof_sprite_scale - x,
+                        -x*roof_slope*roof_sprite_scale - building_height_pixels
+                    ),
+                    scale = roof_sprite_scale,
+                    width_slice = width_slice
+                })
+
+                table.insert(layers, make_roof_right_bottom_bevel_sprite{
+                    shift = util.by_pixel(
+                        size * tile_size_in_pixels - x*roof_apparent_size[1]*roof_sprite_scale - roof_apparent_size[1]*width_slice*roof_sprite_scale + x,
+                        -x*roof_slope*roof_sprite_scale - building_height_pixels
+                    ),
+                    scale = roof_sprite_scale,
+                    width_slice = width_slice
+                })
+            end
+        end
+
+        local function make_roof_side_bevel(num_roof_sprites, roof_sprite_scale)
+            local xmax = math.floor(num_roof_sprites[1])
+            local ymax = num_roof_sprites[2]-1
+            for y=0,ymax do
+                -- -x/y for padding (we overlap by 1 pixel)
+                table.insert(layers, make_roof_left_left_bevel_sprite{
+                    shift = util.by_pixel(
+                        0,
+                        -y*roof_apparent_size[2]*roof_sprite_scale - building_height_pixels + y
+                    ),
+                    scale = roof_sprite_scale
+                })
+
+                table.insert(layers, make_roof_right_right_bevel_sprite{
+                    shift = util.by_pixel(
+                        size * tile_size_in_pixels - roof_side_bevel_sprite_size[1]*roof_sprite_scale + xmax,
+                        -y*roof_apparent_size[2]*roof_sprite_scale - building_height_pixels + y
+                    ),
+                    scale = roof_sprite_scale
+                })
+            end
+        end
+
+        local function make_roof_corner_bevel(num_roof_sprites, roof_sprite_scale)
+            local xmax = math.floor(num_roof_sprites[1])
+            -- -x/y for padding (we overlap by 1 pixel)
+            table.insert(layers, make_roof_left_bottom_left_bevel_sprite{
+                shift = util.by_pixel(
+                    0,
+                    -building_height_pixels
+                ),
+                scale = roof_sprite_scale
+            })
+
+            table.insert(layers, make_roof_right_bottom_right_bevel_sprite{
+                shift = util.by_pixel(
+                    size * tile_size_in_pixels - roof_corner_bevel_sprite_size[1]*roof_sprite_scale + xmax,
+                    -building_height_pixels
+                ),
+                scale = roof_sprite_scale
+            })
+        end
+
+        local function make_roof_decals(num_roof_sprites, roof_sprite_scale)
+            make_roof_bottom_bevel(num_roof_sprites, roof_sprite_scale)
+            make_roof_side_bevel(num_roof_sprites, roof_sprite_scale)
+            make_roof_corner_bevel(num_roof_sprites, roof_sprite_scale)
+        end
+
         local function make_roof()
             -- This will be a fraction amount
             local ideal_num_roof_sprites = {
@@ -278,8 +429,6 @@ do
                 entity_size_in_pixels[1] / (roof_apparent_size[1] * roof_sprite_scale) / 2,
                 math.floor(ideal_num_roof_sprites[2])
             }
-
-            local building_height_pixels = 64
 
             local xmax = math.floor(num_roof_sprites[1])
             local ymax = num_roof_sprites[2]-1
@@ -314,6 +463,8 @@ do
                     })
                 end
             end
+
+            make_roof_decals(num_roof_sprites, roof_sprite_scale)
         end
 
         make_front()
