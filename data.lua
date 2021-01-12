@@ -109,7 +109,6 @@ do
 
     local function generate_composite_factory_picture(size)
         local base_sprite_size = 1
-        local base_hr_sprite_size = 2
 
         return {
             layers = {
@@ -119,33 +118,7 @@ do
                     width = 32,
                     height = 36,
                     shift = util.by_pixel(0.5, -2),
-                    scale = size / base_sprite_size,
-                    hr_version = {
-                        filename = "__base__/graphics/entity/wooden-chest/hr-wooden-chest.png",
-                        priority = "high",
-                        width = 62,
-                        height = 72,
-                        shift = util.by_pixel(0.5, -2),
-                        scale = size / base_hr_sprite_size
-                    }
-                },
-                {
-                    filename = "__base__/graphics/entity/wooden-chest/wooden-chest-shadow.png",
-                    priority = "high",
-                    width = 52,
-                    height = 20,
-                    shift = util.by_pixel(10, 6.5),
-                    draw_as_shadow = true,
-                    scale = size / base_sprite_size,
-                    hr_version = {
-                        filename = "__base__/graphics/entity/wooden-chest/hr-wooden-chest-shadow.png",
-                        priority = "high",
-                        width = 104,
-                        height = 40,
-                        shift = util.by_pixel(10, 6.5),
-                        draw_as_shadow = true,
-                        scale = size / base_hr_sprite_size
-                    }
+                    scale = size / base_sprite_size
                 }
             }
         }
