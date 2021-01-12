@@ -441,6 +441,9 @@ do
         end
 
         local function make_roof_shadow(num_roof_sprites, roof_sprite_scale)
+            -- TODO: make this draw correctly.
+            --       It's hard due to transparency and the need for cutting it at both edges.
+            --[[
             local xmax = math.floor(num_roof_sprites[1])
             local ymax = num_roof_sprites[2]-1
             for x=0,xmax do
@@ -453,33 +456,26 @@ do
                     end
                 end
 
-                local xstart = 0
-                if x == 0 then
-                    xstart = front_inset_pixels
-                    width_slice = width_slice - front_inset_pixels / roof_shadow_sprite_size[1]
-                end
-
                 -- -x/y for padding (we overlap by 1 pixel)
                 table.insert(layers, make_roof_left_shadow_sprite{
                     shift = util.by_pixel(
-                        xstart + x*roof_shadow_sprite_size[1]*roof_sprite_scale - x,
+                        x*roof_shadow_sprite_size[1]*roof_sprite_scale - x,
                         -(x+1)*roof_slope*roof_sprite_scale - building_height_pixels + roof_shadow_sprite_size[2] * roof_sprite_scale - 1
                     ),
                     scale = roof_sprite_scale,
-                    width_slice = width_slice,
-                    x = xstart
+                    width_slice = width_slice
                 })
 
                 table.insert(layers, make_roof_right_shadow_sprite{
                     shift = util.by_pixel(
-                        size * tile_size_in_pixels - xstart - x*roof_shadow_sprite_size[1]*roof_sprite_scale - roof_shadow_sprite_size[1]*width_slice*roof_sprite_scale + x,
+                        size * tile_size_in_pixels - x*roof_shadow_sprite_size[1]*roof_sprite_scale - roof_shadow_sprite_size[1]*width_slice*roof_sprite_scale + x,
                         -(x+1)*roof_slope*roof_sprite_scale - building_height_pixels + roof_shadow_sprite_size[2] * roof_sprite_scale - 1
                     ),
                     scale = roof_sprite_scale,
-                    width_slice = width_slice,
-                    x = xstart
+                    width_slice = width_slice
                 })
             end
+            ]]--
         end
 
         local function make_roof_decals(num_roof_sprites, roof_sprite_scale)
