@@ -108,7 +108,7 @@ do
         order = "a"
     }
 
-    local function generate_composite_factory_picture(size)
+    local function generate_composite_factory_picture(size, ingredients, products, energy_usage, energy_production)
         local tile_size_in_pixels = 32
 
         local half_size = size / 2
@@ -136,8 +136,12 @@ do
         local building_height_pixels = 64
         local front_inset_pixels = 16
 
-        local function get_roof_height_at(x, scale)
-            return (roof_slope * scale) / (roof_sprite_size[1] * scale) * x
+        local function get_roof_height_at(x)
+            if x > half_size * tile_size_in_pixels then
+                x = 2 * half_size * tile_size_in_pixels - x
+            end
+
+            return roof_slope / roof_sprite_size[1] * x
         end
 
         -- The position is relative to bottom left corner
@@ -173,6 +177,39 @@ do
             end
 
             return sprite
+        end
+
+        local function make_sprite_for_thing(args, thing, desired_size)
+            local name = thing.name
+            if not name then
+                name = thing[1]
+            end
+
+            local thing_proto = nil
+            if thing.type and thing.type == "fluid" then
+                thing_proto = data.raw.fluid[name]
+            elseif thing.type and thing.type == "fish" then
+                thing_proto = data.raw.fish[name]
+            elseif thing.type and thing.type == "module" then
+                thing_proto = data.raw.module[name]
+            else
+                thing_proto = data.raw.item[name]
+            end
+
+            if not thing_proto then
+                return nil
+            end
+
+            local icon = thing_proto.icon
+            local icon_size = thing_proto.icon_size
+
+            args.scale = desired_size / icon_size
+
+            return make_sprite(
+                args,
+                icon,
+                { icon_size, icon_size }
+            )
         end
 
         local function make_roof_left_sprite(args)
@@ -576,9 +613,204 @@ do
             end
         end
 
+        local function make_icons()
+            local icon_size = 128
+            local spacing = 32
+
+            local energy_usage_number = 0
+            if energy_usage then
+                energy_usage_number = util.parse_energy(energy_usage)
+            end
+
+            local energy_production_number = 0
+            if energy_production then
+                energy_production_number = util.parse_energy(energy_production)
+            end
+
+            local num_ingredients = 0
+            if ingredients then
+                num_ingredients = num_ingredients + #ingredients
+            end
+            if energy_usage_number > 0 then
+                num_ingredients = num_ingredients + 1
+            end
+
+            local num_products = 0
+            if products then
+                num_products = num_products + #products
+            end
+            if energy_production_number > 0 then
+                num_products = num_products + 1
+            end
+
+            if num_products == 0 and num_ingredients == 0 then
+                return
+            end
+
+            local num_rows = 0
+            if num_ingredients > 0 then
+                num_rows = num_rows + 2
+            end
+            if num_products > 0 then
+                num_rows = num_rows + 1
+            end
+
+            local max_num_columns = 1
+            if num_ingredients > max_num_columns then
+                max_num_columns = num_ingredients
+            end
+            if num_products > max_num_columns then
+                max_num_columns = num_products
+            end
+
+            local max_fill = 0.75
+            local max_height = half_size * 2 * tile_size_in_pixels * max_fill
+            if num_rows * icon_size + (num_rows - 1) * spacing > max_height then
+                -- num_rows * icon_size + (num_rows - 1) * spacing = max_height
+                -- num_rows * icon_size = max_height - (num_rows - 1) * spacing
+                -- icon_size = (max_height - (num_rows - 1) * spacing) / num_rows
+                icon_size = (max_height - (num_rows - 1) * spacing) / num_rows
+            end
+
+            local max_width = half_size * 2 * tile_size_in_pixels * max_fill
+            if max_num_columns * icon_size + (max_num_columns - 1) * spacing > max_width then
+                icon_size = (max_width - (max_num_columns - 1) * spacing) / max_num_columns
+            end
+
+            local x = half_size * tile_size_in_pixels - num_ingredients * icon_size / 2 - (num_ingredients - 1) * spacing / 2
+            local y = -half_size * tile_size_in_pixels - building_height_pixels - icon_size * num_rows / 2 - spacing * (num_rows - 1) / 2
+
+            local make_display_plate = function(x, y)
+                table.insert(layers, make_sprite(
+                    {
+                        priority = "medium",
+                        shift = util.by_pixel(
+                            x - 8,
+                            y + 8
+                        ),
+                        scale = (icon_size + 16) / (64 + 16)
+                    },
+                    "__composite_factories_base__/graphics/icons/icon_display_plate.png",
+                    { 90, 87 }
+                ))
+            end
+
+            if num_ingredients then
+                if energy_usage_number > 0 then
+                    local yy = y + icon_size - get_roof_height_at(x + icon_size / 2)
+                    make_display_plate(x, yy)
+                    table.insert(layers, make_sprite(
+                        {
+                            priority = "medium",
+                            shift = util.by_pixel(
+                                x,
+                                yy
+                            ),
+                            scale = icon_size / 64
+                        },
+                        "__core__/graphics/icons/alerts/electricity-icon-unplugged.png",
+                        { 64, 64 }
+                    ))
+
+                    x = x + icon_size + spacing
+                end
+
+                if ingredients then
+                    for _, p in pairs(ingredients) do
+                        local yy = y + icon_size - get_roof_height_at(x + icon_size / 2)
+                        make_display_plate(x, yy)
+                        local sprite = make_sprite_for_thing(
+                            {
+                                shift = util.by_pixel(
+                                    x,
+                                    yy
+                                )
+                            },
+                            p,
+                            icon_size
+                        )
+
+                        if sprite then
+                            table.insert(layers, sprite)
+                        end
+
+                        x = x + icon_size + spacing
+                    end
+                end
+
+                x = half_size * tile_size_in_pixels - icon_size / 2
+                y = y + icon_size + spacing
+                local yy = y + icon_size - get_roof_height_at(x + icon_size / 2)
+                make_display_plate(x, yy)
+                table.insert(layers, make_sprite(
+                    {
+                        priority = "medium",
+                        shift = util.by_pixel(
+                            x,
+                            yy
+                        ),
+                        scale = icon_size / 64
+                    },
+                    "__composite_factories_base__/graphics/icons/arrow_down.png",
+                    { 64, 64 }
+                ))
+
+                y = y + icon_size + spacing
+            end
+
+            if num_products then
+                local x = half_size * tile_size_in_pixels - num_products * icon_size / 2 - (num_products - 1) * spacing / 2
+
+                if energy_production_number > 0 then
+                    local yy = y + icon_size - get_roof_height_at(x + icon_size / 2)
+                    make_display_plate(x, yy)
+                    table.insert(layers, make_sprite(
+                        {
+                            priority = "medium",
+                            shift = util.by_pixel(
+                                x,
+                                yy
+                            ),
+                            scale = icon_size / 64
+                        },
+                        "__core__/graphics/icons/alerts/electricity-icon-unplugged.png",
+                        { 64, 64 }
+                    ))
+
+                    x = x + icon_size + spacing
+                end
+
+                if products then
+                    for _, p in pairs(products) do
+                        local yy = y + icon_size - get_roof_height_at(x + icon_size / 2)
+                        make_display_plate(x, yy)
+                        local sprite = make_sprite_for_thing(
+                            {
+                                shift = util.by_pixel(
+                                    x,
+                                    yy
+                                )
+                            },
+                            p,
+                            icon_size
+                        )
+
+                        if sprite then
+                            table.insert(layers, sprite)
+                        end
+
+                        x = x + icon_size + spacing
+                    end
+                end
+
+                y = y + icon_size + spacing
+            end
+        end
+
         make_front()
         make_roof()
         make_shadow()
+        make_icons()
 
         return { layers = layers }
     end
@@ -890,6 +1122,7 @@ do
             fixed_recipe = processing_full_name,
             icon = "__composite_factories_base__/graphics/icons/composite_factory.png",
             icon_size = 64,
+            show_recipe_icon = false,
             flags = {"placeable-neutral", "player-creation"},
             minable = {mining_time = 1, result = factory_full_name},
             max_health = 10000,
@@ -912,7 +1145,7 @@ do
                 drain = "0W"
             },
             energy_usage = args.energy_usage,
-            animation = generate_composite_factory_picture(args.size),
+            animation = generate_composite_factory_picture(args.size, args.ingredients, args.results, args.energy_usage, "0W"),
             fluid_boxes = fluid_boxes,
             vehicle_impact_sound = {filename = "__base__/sound/car-metal-impact.ogg", volume = 0.65},
             working_sound =
@@ -1004,7 +1237,7 @@ do
             },
             energy_production = args.energy_production,
             energy_usage = "0W",
-            picture = generate_composite_factory_picture(args.size),
+            picture = generate_composite_factory_picture(args.size, {}, {}, "0W", args.energy_production),
             vehicle_impact_sound = {filename = "__base__/sound/car-metal-impact.ogg", volume = 0.65}
         }})
     end
