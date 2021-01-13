@@ -951,46 +951,7 @@ do
             },
             energy_production = args.energy_production,
             energy_usage = "0W",
-            -- also 'pictures' for 4-way sprite is available, or 'animation' resp. 'animations'picture =
-            picture = {
-                layers =
-                {
-                    {
-                        filename = "__base__/graphics/entity/solar-panel/solar-panel.png",
-                        priority = "high",
-                        width = 116,
-                        height = 112,
-                        shift = util.by_pixel(-3, 3),
-                        scale = args.size / base_sprite_size,
-                        hr_version = {
-                            filename = "__base__/graphics/entity/solar-panel/hr-solar-panel.png",
-                            priority = "high",
-                            width = 230,
-                            height = 224,
-                            shift = util.by_pixel(-3, 3.5),
-                            scale = args.size / base_hr_sprite_size
-                        }
-                    },
-                    {
-                        filename = "__base__/graphics/entity/solar-panel/solar-panel-shadow.png",
-                        priority = "high",
-                        width = 112,
-                        height = 90,
-                        shift = util.by_pixel(10, 6),
-                        draw_as_shadow = true,
-                        scale = args.size / base_sprite_size,
-                        hr_version = {
-                            filename = "__base__/graphics/entity/solar-panel/hr-solar-panel-shadow.png",
-                            priority = "high",
-                            width = 220,
-                            height = 180,
-                            shift = util.by_pixel(9.5, 6),
-                            draw_as_shadow = true,
-                            scale = args.size / base_hr_sprite_size
-                        }
-                    }
-                }
-            },
+            picture = generate_composite_factory_picture(args.size),
             vehicle_impact_sound = {filename = "__base__/sound/car-metal-impact.ogg", volume = 0.65}
         }})
     end
