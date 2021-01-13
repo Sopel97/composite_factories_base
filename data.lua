@@ -1122,6 +1122,7 @@ do
             fixed_recipe = processing_full_name,
             icon = "__composite_factories_base__/graphics/icons/composite_factory.png",
             icon_size = 64,
+            show_recipe_icon = false,
             flags = {"placeable-neutral", "player-creation"},
             minable = {mining_time = 1, result = factory_full_name},
             max_health = 10000,
