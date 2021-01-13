@@ -108,7 +108,7 @@ do
         order = "a"
     }
 
-    local function generate_composite_factory_picture(size)
+    local function generate_composite_factory_picture(size, ingredients, products, energy_usage, energy_production)
         local tile_size_in_pixels = 32
 
         local half_size = size / 2
@@ -173,6 +173,39 @@ do
             end
 
             return sprite
+        end
+
+        local function make_sprite_for_thing(args, thing, desired_size)
+            local name = thing.name
+            if not name then
+                name = thing[1]
+            end
+
+            local thing_proto = nil
+            if thing.type and thing.type == "fluid" then
+                thing_proto = data.raw.fluid[name]
+            elseif thing.type and thing.type == "fish" then
+                thing_proto = data.raw.fish[name]
+            elseif thing.type and thing.type == "module" then
+                thing_proto = data.raw.module[name]
+            else
+                thing_proto = data.raw.item[name]
+            end
+
+            if not thing_proto then
+                return nil
+            end
+
+            local icon = thing_proto.icon
+            local icon_size = thing_proto.icon_size
+
+            args.scale = desired_size / icon_size
+
+            return make_sprite(
+                args,
+                icon,
+                { icon_size, icon_size }
+            )
         end
 
         local function make_roof_left_sprite(args)
@@ -576,9 +609,157 @@ do
             end
         end
 
+        local function make_icons()
+            local icon_size = 128
+            local spacing = 16
+
+            local energy_usage_number = 0
+            if energy_usage then
+                energy_usage_number = util.parse_energy(energy_usage)
+            end
+
+            local energy_production_number = 0
+            if energy_production then
+                energy_production_number = util.parse_energy(energy_production)
+            end
+
+            local num_ingredients = 0
+            if ingredients then
+                num_ingredients = num_ingredients + #ingredients
+            end
+            if energy_usage_number > 0 then
+                num_ingredients = num_ingredients + 1
+            end
+
+            local num_products = 0
+            if products then
+                num_products = num_products + #products
+            end
+            if energy_production_number > 0 then
+                num_products = num_products + 1
+            end
+
+            if num_products == 0 and num_ingredients == 0 then
+                return
+            end
+
+            local num_rows = 0
+            if num_ingredients > 0 then
+                num_rows = num_rows + 2
+            end
+            if num_products > 0 then
+                num_rows = num_rows + 1
+            end
+
+            local x = half_size * tile_size_in_pixels - num_ingredients * icon_size / 2 - (num_ingredients - 1) * spacing / 2
+            local y = -half_size * tile_size_in_pixels - building_height_pixels - icon_size * num_rows / 2 - spacing * (num_rows - 1) / 2
+
+            if num_ingredients then
+                if energy_usage_number > 0 then
+                    table.insert(layers, make_sprite(
+                        {
+                            priority = "medium",
+                            shift = util.by_pixel(
+                                x,
+                                y+icon_size
+                            ),
+                            scale = icon_size / 64
+                        },
+                        "__core__/graphics/icons/alerts/electricity-icon-unplugged.png",
+                        { 64, 64 }
+                    ))
+
+                    x = x + icon_size + spacing
+                end
+
+                if ingredients then
+                    for _, p in pairs(ingredients) do
+                        local sprite = make_sprite_for_thing(
+                            {
+                                shift = util.by_pixel(
+                                    x,
+                                    y+icon_size
+                                )
+                            },
+                            p,
+                            icon_size
+                        )
+
+                        if sprite then
+                            table.insert(layers, sprite)
+                        end
+
+                        x = x + icon_size + spacing
+                    end
+                end
+
+                x = half_size * tile_size_in_pixels - icon_size / 2
+                y = y + icon_size + spacing
+                table.insert(layers, make_sprite(
+                    {
+                        priority = "medium",
+                        shift = util.by_pixel(
+                            x,
+                            y+icon_size
+                        ),
+                        scale = icon_size / 64
+                    },
+                    "__composite_factories_base__/graphics/icons/arrow_down.png",
+                    { 64, 64 }
+                ))
+
+                y = y + icon_size + spacing
+            end
+
+            if num_products then
+                local x = half_size * tile_size_in_pixels - num_products * icon_size / 2 - (num_products - 1) * spacing / 2
+
+                if energy_production_number > 0 then
+                    table.insert(layers, make_sprite(
+                        {
+                            priority = "medium",
+                            shift = util.by_pixel(
+                                x,
+                                y+icon_size
+                            ),
+                            scale = icon_size / 64
+                        },
+                        "__core__/graphics/icons/alerts/electricity-icon-unplugged.png",
+                        { 64, 64 }
+                    ))
+
+                    x = x + icon_size + spacing
+                end
+
+                if products then
+                    for _, p in pairs(products) do
+                        local sprite = make_sprite_for_thing(
+                            {
+                                shift = util.by_pixel(
+                                    x,
+                                    y+icon_size
+                                )
+                            },
+                            p,
+                            icon_size
+                        )
+
+                        if sprite then
+                            table.insert(layers, sprite)
+                        end
+
+                        x = x + icon_size + spacing
+                    end
+                end
+
+                y = y + icon_size + spacing
+            end
+        end
+
         make_front()
         make_roof()
         make_shadow()
+        make_icons()
 
         return { layers = layers }
     end
@@ -912,7 +1093,7 @@ do
                 drain = "0W"
             },
             energy_usage = args.energy_usage,
-            animation = generate_composite_factory_picture(args.size),
+            animation = generate_composite_factory_picture(args.size, args.ingredients, args.results, args.energy_usage, "0W"),
             fluid_boxes = fluid_boxes,
             vehicle_impact_sound = {filename = "__base__/sound/car-metal-impact.ogg", volume = 0.65},
             working_sound =
