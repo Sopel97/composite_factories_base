@@ -27,6 +27,7 @@ do
             order = "z",
             inventory_order = "z",
             icon = "__composite_factories_base__/graphics/icons/item_group.png",
+            localised_name = {"", {"item-group-name.composite-factories"}},
             icon_size = 64
         },
         {
@@ -601,6 +602,7 @@ do
         data:extend({{
             type = "item",
             name = full_name,
+            localised_name = {"", {"item-name." .. full_name}},
             icon = "__composite_factories_base__/graphics/icons/material_exchange_container.png",
             icon_size = 64,
             subgroup = container_item_subgroup,
@@ -630,6 +632,7 @@ do
         data:extend({{
             type = "container",
             name = full_name,
+            localised_name = {"", {"entity-name." .. full_name}},
             icon = "__composite_factories_base__/graphics/icons/material_exchange_container.png",
             icon_size = 64,
             flags = {"placeable-neutral", "placeable-player", "player-creation"},
@@ -684,7 +687,7 @@ do
         data:extend({{
             type = "technology",
             name = full_name,
-            -- placeholder
+            localised_name = {"", {"technology-name." .. full_name}},
             icon = "__composite_factories_base__/graphics/icons/composite_factory.png",
             icon_size = 64,
             effects = {},
@@ -732,6 +735,34 @@ do
         }
     end
 
+    local function get_item_or_fluid_localisation(thing)
+        local name = thing.name
+        if not name then
+            name = thing[1]
+        end
+
+        if thing.type and thing.type == "fluid" then
+            return "fluid-name." .. name
+        else
+            return "item-name." .. name
+        end
+    end
+
+    local function append_localised_things(localised_name, things)
+        local first = true
+        for _, v in pairs(things) do
+            if not first then
+                table.insert(localised_name, ", ")
+            end
+
+            first = false
+
+            table.insert(localised_name, {
+                get_item_or_fluid_localisation(v)
+            })
+        end
+    end
+
     cflib.add_composite_factory = function(args)
         local factory_full_name = cflib.make_composite_factory_name(args.name)
         local processing_full_name = cflib.make_processing_recipe_name(args.name)
@@ -749,6 +780,9 @@ do
         local perimeter = math.floor(args.size * 4)
         table.insert(args.constituent_buildings, { "steel-plate", area })
         table.insert(args.constituent_buildings, { "stone-brick", perimeter })
+
+        local localised_name = {"", {"item-name.composite-factory"}, ": "}
+        append_localised_things(localised_name, args.results)
 
         local fluid_boxes = {
             off_when_no_fluid_recipe = true
@@ -788,6 +822,7 @@ do
         data:extend({{
             type = "recipe",
             name = factory_full_name,
+            localised_name = localised_name,
             enabled = composite_factory_recipe_enabled,
             energy_required = 600.0,
             category = "crafting",
@@ -835,6 +870,7 @@ do
         data:extend({{
             type = "item",
             name = factory_full_name,
+            localised_name = localised_name,
             icon = "__composite_factories_base__/graphics/icons/composite_factory.png",
             icon_size = 64,
             flags = {},
@@ -848,6 +884,7 @@ do
         data:extend({{
             type = "assembling-machine",
             name = factory_full_name,
+            localised_name = localised_name,
             fixed_recipe = processing_full_name,
             icon = "__composite_factories_base__/graphics/icons/composite_factory.png",
             icon_size = 64,
@@ -909,10 +946,13 @@ do
         table.insert(args.constituent_buildings, { "steel-plate", area })
         table.insert(args.constituent_buildings, { "stone-brick", perimeter })
 
+        local localised_name = {"", {"item-name.composite-generator"}, ": ", args.energy_production}
+
         -- Composite factory building item recipe
         data:extend({{
             type = "recipe",
             name = full_name,
+            localised_name = localised_name,
             enabled = composite_factory_recipe_enabled,
             energy_required = 600.0,
             category = "crafting",
@@ -930,6 +970,7 @@ do
         data:extend({{
             type = "item",
             name = full_name,
+            localised_name = localised_name,
             icon = "__composite_factories_base__/graphics/icons/composite_generator.png",
             icon_size = 64,
             flags = {},
@@ -942,6 +983,7 @@ do
         data:extend({{
             type = "electric-energy-interface",
             name = full_name,
+            localised_name = localised_name,
             icon = "__composite_factories_base__/graphics/icons/composite_generator.png",
             icon_size = 64,
             flags = {"placeable-neutral", "player-creation"},
