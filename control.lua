@@ -60,13 +60,6 @@ do
         multi_index_set(cflib.init_flags, {player_index, name}, false)
     end
 
-    local function is_recipe_researched(player, recipe_prototype)
-        local force = player.force
-        local unlocked_recipes = force.recipes
-
-        return unlocked_recipes[recipe_prototype.name] ~= nil
-    end
-
     local function get_recipe_name_to_technology_map()
         local technologies_by_recipe = {}
 
@@ -722,12 +715,19 @@ do
         return true
     end
 
-    local function can_be_researched(player, technology)
+    local function is_technology_researched(player, technology)
+        local force = player.force
+        local technologies = force.technologies
+
+        return technologies[technology.name].researched
+    end
+
+    local function can_technology_be_researched(player, technology)
         local force = player.force
         local technologies = force.technologies
 
         for _, prerequisite in pairs(technology.prerequisites) do
-            if not technologies[prerequisite] then
+            if not technologies[prerequisite.name].researched then
                 return false
             end
         end
@@ -805,8 +805,6 @@ do
             local processing_recipe = prototypes.processing_recipe
             local searchable_names = prototypes.searchable_names
 
-            local is_researched = is_recipe_researched(player, entity_item_recipe)
-
             local unlocked_by_button_name = cflib.make_gui_style_name("material-exchange-container-gui-exchange-unlocked-by-" .. name)
             local exchange_table_row_name = cflib.make_gui_element_name("material-exchange-container-gui-exchange-table-row-" .. name)
             local exchange_table_row_line_name = cflib.make_gui_element_name("material-exchange-container-gui-exchange-table-row-line-" .. name)
@@ -829,13 +827,16 @@ do
             local do_hide = (filters.text_contains and not any_contains(searchable_names, filters.text_contains))
 
             local is_craftable = true
+            local is_researched = true
             if not do_hide then
                 if unlocked_by then
+                    is_researched = is_technology_researched(player, unlocked_by[1])
+
                     local unlocked_by_button = exchange_table_row[unlocked_by_button_name]
 
                     if is_researched then
                         unlocked_by_button.style = item_preview_style_green_name
-                    elseif not hide_not_researched and can_be_researched(player, unlocked_by[1]) then
+                    elseif not hide_not_researched and can_technology_be_researched(player, unlocked_by[1]) then
                         unlocked_by_button.style = item_preview_style_yellow_name
                     elseif not hide_not_researched then
                         unlocked_by_button.style = item_preview_style_red_name
