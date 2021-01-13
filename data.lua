@@ -586,11 +586,14 @@ do
     local function add_container(args)
         local full_name = cflib.make_container_name(args.name)
 
-        local sprite_size = { 248, 224 }
-        local shadow_sprite_size = { 106, 170 }
+        local sprite_size = { 248, 312 }
+        local shadow_sprite_size = { 48, 248 }
 
         local half_size = args.size / 2
-        local base_apparent_sprite_size = 248 / 32
+        local base_apparent_sprite_size_pixels = sprite_size[1]
+        local base_apparent_sprite_size = base_apparent_sprite_size_pixels / 32
+
+        local scale = args.size / base_apparent_sprite_size
 
         local container_recipe_enabled = args.unlocked_by == nil
 
@@ -655,18 +658,19 @@ do
                         filename = "__composite_factories_base__/graphics/entity/material_exchange_container.png",
                         priority = "high",
                         size = sprite_size,
-                        scale = args.size / base_apparent_sprite_size
+                        shift = util.by_pixel(0, -(sprite_size[2] - shadow_sprite_size[2]) / 2 * scale),
+                        scale = scale
                     },
                     {
                         filename = "__composite_factories_base__/graphics/entity/material_exchange_container_shadow.png",
                         priority = "high",
                         size = shadow_sprite_size,
-                        shift = {
-                            (args.size / 2 + shadow_sprite_size[1] / 2) / base_apparent_sprite_size,
-                            (sprite_size[2]-shadow_sprite_size[2]) / 32 / base_apparent_sprite_size
-                        },
+                        shift = util.by_pixel(
+                            (base_apparent_sprite_size_pixels + shadow_sprite_size[1]) / 2 * scale - 2,
+                            (base_apparent_sprite_size_pixels - shadow_sprite_size[2]) / 2 * scale
+                        ),
                         draw_as_shadow = true,
-                        scale = args.size / base_apparent_sprite_size
+                        scale = scale
                     }
                 }
             }
