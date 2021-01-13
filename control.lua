@@ -809,6 +809,7 @@ do
 
             local do_hide = (filters.text_contains and string.find(name, filters.text_contains, 1, true) == nil)
 
+            local is_craftable = true
             if not do_hide then
                 if unlocked_by then
                     local unlocked_by_button = exchange_table_row[unlocked_by_button_name]
@@ -827,12 +828,15 @@ do
                     local required_amount = e.number
                     local owned_amount = container_contents[ingredient_name] or 0
                     local style = item_preview_style_green_name
-                    if owned_amount < required_amount then
+                    local can_afford = owned_amount >= required_amount
+                    if not can_afford then
                         style = item_preview_style_red_name
                     end
 
                     e.tooltip = {"", owned_amount, "/", required_amount, " ", e.tooltip[6]}
                     e.style = style
+
+                    return can_afford
                 end
 
                 local num_preview_ingredients = 0
@@ -844,7 +848,6 @@ do
                 end
 
                 local num_total_ingredients = 0
-                local is_craftable = true
                 for _, e in pairs(building_ingredients_panel.children) do
                     if e.type == "sprite-button" then
                         is_craftable = update_sprite_button(e) and is_craftable
