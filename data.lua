@@ -1185,7 +1185,7 @@ do
             },
             energy_production = args.energy_production,
             energy_usage = "0W",
-            picture = generate_composite_factory_picture(args.size),
+            picture = generate_composite_factory_picture(args.size, {}, {}, "0W", args.energy_production),
             vehicle_impact_sound = {filename = "__base__/sound/car-metal-impact.ogg", volume = 0.65}
         }})
     end
