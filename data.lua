@@ -26,7 +26,7 @@ do
             name = cflib.item_group_name,
             order = "z",
             inventory_order = "z",
-            icon = "__composite_factories_base__/graphics/icons/item-group.png",
+            icon = "__composite_factories_base__/graphics/icons/item_group.png",
             icon_size = 64
         },
         {
@@ -34,7 +34,7 @@ do
             name = cflib.processing_recipe_group_name,
             order = "z",
             inventory_order = "z",
-            icon = "__composite_factories_base__/graphics/icons/processing-recipe-group.png",
+            icon = "__composite_factories_base__/graphics/icons/processing_recipe_group.png",
             icon_size = 64
         },
         {
@@ -601,9 +601,8 @@ do
         data:extend({{
             type = "item",
             name = full_name,
-            icon = "__base__/graphics/icons/wooden-chest.png",
+            icon = "__composite_factories_base__/graphics/icons/material_exchange_container.png",
             icon_size = 64,
-            icon_mipmaps = 4,
             subgroup = container_item_subgroup,
             order = "a[items]-a[wooden-chest]",
             place_result = full_name,
@@ -631,8 +630,8 @@ do
         data:extend({{
             type = "container",
             name = full_name,
-            icon = "__base__/graphics/icons/wooden-chest.png",
-            icon_size = 64, icon_mipmaps = 4,
+            icon = "__composite_factories_base__/graphics/icons/material_exchange_container.png",
+            icon_size = 64,
             flags = {"placeable-neutral", "placeable-player", "player-creation"},
             minable = {mining_time = 2, result = full_name},
             max_health = 10000,
@@ -686,7 +685,7 @@ do
             type = "technology",
             name = full_name,
             -- placeholder
-            icon = "__base__/graphics/icons/assembling-machine-1.png",
+            icon = "__composite_factories_base__/graphics/icons/composite_factory.png",
             icon_size = 64,
             effects = {},
             prerequisites = args.prerequisites,
@@ -819,7 +818,7 @@ do
                 category = cflib.processing_recipe_category_name,
                 subgroup = cflib.processing_recipe_group_name,
                 -- TODO: generate an icon from products
-                icon = "__base__/graphics/icons/assembling-machine-1.png",
+                icon = "__composite_factories_base__/graphics/icons/composite_factory.png",
                 order = "b",
                 icon_size = 64,
                 ingredients = args.ingredients,
@@ -831,7 +830,7 @@ do
         data:extend({{
             type = "item",
             name = factory_full_name,
-            icon = "__base__/graphics/icons/assembling-machine-1.png",
+            icon = "__composite_factories_base__/graphics/icons/composite_factory.png",
             icon_size = 64,
             flags = {},
             subgroup = args.subgroup,
@@ -845,7 +844,7 @@ do
             type = "assembling-machine",
             name = factory_full_name,
             fixed_recipe = processing_full_name,
-            icon = "__base__/graphics/icons/assembling-machine-1.png",
+            icon = "__composite_factories_base__/graphics/icons/composite_factory.png",
             icon_size = 64,
             flags = {"placeable-neutral", "player-creation"},
             minable = {mining_time = 1, result = factory_full_name},
@@ -921,7 +920,7 @@ do
         data:extend({{
             type = "item",
             name = full_name,
-            icon = "__base__/graphics/icons/solar-panel.png",
+            icon = "__composite_factories_base__/graphics/icons/composite_generator.png",
             icon_size = 64,
             flags = {},
             subgroup = args.subgroup,
@@ -933,8 +932,8 @@ do
         data:extend({{
             type = "electric-energy-interface",
             name = full_name,
-            icons = { {icon = "__base__/graphics/icons/solar-panel.png", tint = {r=1, g=0.6, b=0.8, a=1}} },
-            icon_size = 64, icon_mipmaps = 4,
+            icon = "__composite_factories_base__/graphics/icons/composite_generator.png",
+            icon_size = 64,
             flags = {"placeable-neutral", "player-creation"},
             minable = {mining_time = 1, result = full_name},
             max_health = 10000,
