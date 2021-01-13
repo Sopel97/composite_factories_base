@@ -586,9 +586,11 @@ do
     local function add_container(args)
         local full_name = cflib.make_container_name(args.name)
 
+        local sprite_size = { 248, 224 }
+        local shadow_sprite_size = { 106, 170 }
+
         local half_size = args.size / 2
-        local base_sprite_size = 1
-        local base_hr_sprite_size = 2
+        local base_apparent_sprite_size = 248 / 32
 
         local container_recipe_enabled = args.unlocked_by == nil
 
@@ -650,38 +652,21 @@ do
             picture = {
                 layers = {
                     {
-                        filename = "__base__/graphics/entity/wooden-chest/wooden-chest.png",
+                        filename = "__composite_factories_base__/graphics/entity/material_exchange_container.png",
                         priority = "high",
-                        width = 32,
-                        height = 36,
-                        shift = util.by_pixel(0.5, -2),
-                        scale = args.size / base_sprite_size,
-                        hr_version = {
-                            filename = "__base__/graphics/entity/wooden-chest/hr-wooden-chest.png",
-                            priority = "high",
-                            width = 62,
-                            height = 72,
-                            shift = util.by_pixel(0.5, -2),
-                            scale = args.size / base_hr_sprite_size
-                        }
+                        size = sprite_size,
+                        scale = args.size / base_apparent_sprite_size
                     },
                     {
-                        filename = "__base__/graphics/entity/wooden-chest/wooden-chest-shadow.png",
+                        filename = "__composite_factories_base__/graphics/entity/material_exchange_container_shadow.png",
                         priority = "high",
-                        width = 52,
-                        height = 20,
-                        shift = util.by_pixel(10, 6.5),
+                        size = shadow_sprite_size,
+                        shift = {
+                            (args.size / 2 + shadow_sprite_size[1] / 2) / base_apparent_sprite_size,
+                            (sprite_size[2]-shadow_sprite_size[2]) / 32 / base_apparent_sprite_size
+                        },
                         draw_as_shadow = true,
-                        scale = args.size / base_sprite_size,
-                        hr_version = {
-                            filename = "__base__/graphics/entity/wooden-chest/hr-wooden-chest-shadow.png",
-                            priority = "high",
-                            width = 104,
-                            height = 40,
-                            shift = util.by_pixel(10, 6.5),
-                            draw_as_shadow = true,
-                            scale = args.size / base_hr_sprite_size
-                        }
+                        scale = args.size / base_apparent_sprite_size
                     }
                 }
             }
