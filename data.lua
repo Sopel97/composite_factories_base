@@ -847,7 +847,8 @@ do
                 subgroup = cflib.processing_recipe_group_name,
                 order = "b",
                 ingredients = args.ingredients,
-                results = args.results
+                results = args.results,
+                hidden = true
             }})
         else
             data:extend({{
@@ -862,7 +863,8 @@ do
                 order = "b",
                 icon_size = 64,
                 ingredients = args.ingredients,
-                results = args.results
+                results = args.results,
+                hidden = true
             }})
         end
 
