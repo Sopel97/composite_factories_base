@@ -703,7 +703,7 @@ do
     cflib.base_technology = cflib.add_technology{
         name = "base-technology",
         prerequisites = {"logistic-science-pack"},
-        num_units = 500,
+        num_units = 250,
         unit_ingredients = {
             {"automation-science-pack", 1},
             {"logistic-science-pack", 1}
@@ -716,7 +716,7 @@ do
         num_slots = 1000,
         size = 10,
         ingredients = {
-            {"wooden-chest", 100},
+            {"steel-chest", 50},
             {"iron-plate", 200},
             {"stone-brick", 200},
             {"steel-plate", 200}
@@ -744,6 +744,11 @@ do
         local num_fluid_outputs = count_fluids(args.results)
 
         local composite_factory_recipe_enabled = args.unlocked_by == nil
+
+        local area = math.floor(args.size * args.size)
+        local perimeter = math.floor(args.size * 4)
+        table.insert(args.constituent_buildings, { "steel-plate", area })
+        table.insert(args.constituent_buildings, { "stone-brick", perimeter })
 
         local fluid_boxes = {
             off_when_no_fluid_recipe = true
@@ -898,6 +903,11 @@ do
         local half_size = args.size / 2
 
         local enabled = args.unlocked_by == nil
+
+        local area = math.floor(args.size * args.size)
+        local perimeter = math.floor(args.size * 4)
+        table.insert(args.constituent_buildings, { "steel-plate", area })
+        table.insert(args.constituent_buildings, { "stone-brick", perimeter })
 
         -- Composite factory building item recipe
         data:extend({{
