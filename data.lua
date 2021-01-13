@@ -26,7 +26,7 @@ do
             name = cflib.item_group_name,
             order = "z",
             inventory_order = "z",
-            icon = "__composite_factories_pyblock__/graphics/item-group.png",
+            icon = "__composite_factories_base__/graphics/icons/item-group.png",
             icon_size = 64
         },
         {
@@ -34,7 +34,7 @@ do
             name = cflib.processing_recipe_group_name,
             order = "z",
             inventory_order = "z",
-            icon = "__composite_factories_pyblock__/graphics/processing-recipe-group.png",
+            icon = "__composite_factories_base__/graphics/icons/processing-recipe-group.png",
             icon_size = 64
         },
         {
