@@ -156,13 +156,19 @@ do
                     processing_recipe = game.recipe_prototypes[processing_recipe_name]
                     entity_item = game.item_prototypes[name]
                     entity_item_recipe = game.recipe_prototypes[name]
+                    searchable_names = {entity_item.name}
+                    for _, p in pairs(processing_recipe.products) do
+                        table.insert(searchable_names, p.name)
+                    end
+
                     table.insert(factories, {
                         entity = entity,
                         processing_recipe = processing_recipe,
                         entity_item = entity_item,
                         entity_item_recipe = entity_item_recipe,
                         unlocked_by = technologies_by_recipe[entity_item_recipe.name],
-                        ordering_value = get_composite_factory_ordering_value(entity, entity_item_recipe, processing_recipe, unlocked_by)
+                        ordering_value = get_composite_factory_ordering_value(entity, entity_item_recipe, processing_recipe, unlocked_by),
+                        searchable_names = searchable_names
                     })
                 end
             elseif e.type == "electric-energy-interface" then
@@ -176,7 +182,8 @@ do
                         entity_item = entity_item,
                         entity_item_recipe = entity_item_recipe,
                         unlocked_by = technologies_by_recipe[entity_item_recipe.name],
-                        ordering_value = get_composite_generator_ordering_value(entity, entity_item_recipe, unlocked_by)
+                        ordering_value = get_composite_generator_ordering_value(entity, entity_item_recipe, unlocked_by),
+                        searchable_names = {entity_item.name}
                     })
                 end
             end
@@ -728,6 +735,16 @@ do
         return true
     end
 
+    local function any_contains(names, text)
+        for _, name in pairs(names) do
+            if string.find(name, text, 1, true) then
+                return true
+            end
+        end
+
+        return false
+    end
+
     local function update_material_exchange_container_gui(gui, container, player)
         local prev_container_contents_path = {"material_exchange_container", "prev_container_contents", player.index}
         local prev_container_contents = multi_index_get(global, prev_container_contents_path)
@@ -785,6 +802,8 @@ do
             local entity_item_recipe = prototypes.entity_item_recipe
             local name = entity.name
             local unlocked_by = prototypes.unlocked_by
+            local processing_recipe = prototypes.processing_recipe
+            local searchable_names = prototypes.searchable_names
 
             local is_researched = is_recipe_researched(player, entity_item_recipe)
 
@@ -807,7 +826,7 @@ do
             local building_ingredients_preview_panel = building_ingredients_flow[building_ingredients_preview_panel_name]
             local building_ingredients_panel = building_ingredients_flow[building_ingredients_panel_name]
 
-            local do_hide = (filters.text_contains and string.find(name, filters.text_contains, 1, true) == nil)
+            local do_hide = (filters.text_contains and not any_contains(searchable_names, filters.text_contains))
 
             local is_craftable = true
             if not do_hide then
