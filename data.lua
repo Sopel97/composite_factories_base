@@ -953,7 +953,7 @@ do
             type = "recipe",
             name = full_name,
             localised_name = localised_name,
-            enabled = composite_factory_recipe_enabled,
+            enabled = enabled,
             energy_required = 600.0,
             category = "crafting",
             ingredients = args.constituent_buildings,
