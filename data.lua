@@ -136,8 +136,12 @@ do
         local building_height_pixels = 64
         local front_inset_pixels = 16
 
-        local function get_roof_height_at(x, scale)
-            return (roof_slope * scale) / (roof_sprite_size[1] * scale) * x
+        local function get_roof_height_at(x)
+            if x > half_size * tile_size_in_pixels then
+                x = 2 * half_size * tile_size_in_pixels - x
+            end
+
+            return roof_slope / roof_sprite_size[1] * x
         end
 
         -- The position is relative to bottom left corner
@@ -611,7 +615,7 @@ do
 
         local function make_icons()
             local icon_size = 128
-            local spacing = 16
+            local spacing = 32
 
             local energy_usage_number = 0
             if energy_usage then
@@ -651,17 +655,56 @@ do
                 num_rows = num_rows + 1
             end
 
+            local max_num_columns = 1
+            if num_ingredients > max_num_columns then
+                max_num_columns = num_ingredients
+            end
+            if num_products > max_num_columns then
+                max_num_columns = num_products
+            end
+
+            local max_fill = 0.75
+            local max_height = half_size * 2 * tile_size_in_pixels * max_fill
+            if num_rows * icon_size + (num_rows - 1) * spacing > max_height then
+                -- num_rows * icon_size + (num_rows - 1) * spacing = max_height
+                -- num_rows * icon_size = max_height - (num_rows - 1) * spacing
+                -- icon_size = (max_height - (num_rows - 1) * spacing) / num_rows
+                icon_size = (max_height - (num_rows - 1) * spacing) / num_rows
+            end
+
+            local max_width = half_size * 2 * tile_size_in_pixels * max_fill
+            if max_num_columns * icon_size + (max_num_columns - 1) * spacing > max_width then
+                icon_size = (max_width - (max_num_columns - 1) * spacing) / max_num_columns
+            end
+
             local x = half_size * tile_size_in_pixels - num_ingredients * icon_size / 2 - (num_ingredients - 1) * spacing / 2
             local y = -half_size * tile_size_in_pixels - building_height_pixels - icon_size * num_rows / 2 - spacing * (num_rows - 1) / 2
 
+            local make_display_plate = function(x, y)
+                table.insert(layers, make_sprite(
+                    {
+                        priority = "medium",
+                        shift = util.by_pixel(
+                            x - 8,
+                            y + 8
+                        ),
+                        scale = (icon_size + 16) / (64 + 16)
+                    },
+                    "__composite_factories_base__/graphics/icons/icon_display_plate.png",
+                    { 90, 87 }
+                ))
+            end
+
             if num_ingredients then
                 if energy_usage_number > 0 then
+                    local yy = y + icon_size - get_roof_height_at(x + icon_size / 2)
+                    make_display_plate(x, yy)
                     table.insert(layers, make_sprite(
                         {
                             priority = "medium",
                             shift = util.by_pixel(
                                 x,
-                                y+icon_size
+                                yy
                             ),
                             scale = icon_size / 64
                         },
@@ -674,11 +717,13 @@ do
 
                 if ingredients then
                     for _, p in pairs(ingredients) do
+                        local yy = y + icon_size - get_roof_height_at(x + icon_size / 2)
+                        make_display_plate(x, yy)
                         local sprite = make_sprite_for_thing(
                             {
                                 shift = util.by_pixel(
                                     x,
-                                    y+icon_size
+                                    yy
                                 )
                             },
                             p,
@@ -695,12 +740,14 @@ do
 
                 x = half_size * tile_size_in_pixels - icon_size / 2
                 y = y + icon_size + spacing
+                local yy = y + icon_size - get_roof_height_at(x + icon_size / 2)
+                make_display_plate(x, yy)
                 table.insert(layers, make_sprite(
                     {
                         priority = "medium",
                         shift = util.by_pixel(
                             x,
-                            y+icon_size
+                            yy
                         ),
                         scale = icon_size / 64
                     },
@@ -715,12 +762,14 @@ do
                 local x = half_size * tile_size_in_pixels - num_products * icon_size / 2 - (num_products - 1) * spacing / 2
 
                 if energy_production_number > 0 then
+                    local yy = y + icon_size - get_roof_height_at(x + icon_size / 2)
+                    make_display_plate(x, yy)
                     table.insert(layers, make_sprite(
                         {
                             priority = "medium",
                             shift = util.by_pixel(
                                 x,
-                                y+icon_size
+                                yy
                             ),
                             scale = icon_size / 64
                         },
@@ -733,11 +782,13 @@ do
 
                 if products then
                     for _, p in pairs(products) do
+                        local yy = y + icon_size - get_roof_height_at(x + icon_size / 2)
+                        make_display_plate(x, yy)
                         local sprite = make_sprite_for_thing(
                             {
                                 shift = util.by_pixel(
                                     x,
-                                    y+icon_size
+                                    yy
                                 )
                             },
                             p,
