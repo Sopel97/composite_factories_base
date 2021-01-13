@@ -695,7 +695,7 @@ do
                 ))
             end
 
-            if num_ingredients then
+            if num_ingredients > 0 then
                 if energy_usage_number > 0 then
                     local yy = y + icon_size - get_roof_height_at(x + icon_size / 2)
                     make_display_plate(x, yy)
@@ -758,7 +758,7 @@ do
                 y = y + icon_size + spacing
             end
 
-            if num_products then
+            if num_products > 0 then
                 local x = half_size * tile_size_in_pixels - num_products * icon_size / 2 - (num_products - 1) * spacing / 2
 
                 if energy_production_number > 0 then
