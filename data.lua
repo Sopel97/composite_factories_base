@@ -185,17 +185,7 @@ do
                 name = thing[1]
             end
 
-            local thing_proto = nil
-            if thing.type and thing.type == "fluid" then
-                thing_proto = data.raw.fluid[name]
-            elseif thing.type and thing.type == "fish" then
-                thing_proto = data.raw.fish[name]
-            elseif thing.type and thing.type == "module" then
-                thing_proto = data.raw.module[name]
-            else
-                thing_proto = data.raw.item[name]
-            end
-
+            local thing_proto = data.raw.fluid[name] or data.raw.item[name] or data.raw.module[name] or data.raw.fish[name]
             if not thing_proto then
                 return nil
             end
