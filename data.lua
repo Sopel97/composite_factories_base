@@ -1222,7 +1222,7 @@ do
             energy_source =
             {
                 type = "electric",
-                buffer_capacity = nil,
+                buffer_capacity = args.buffer_capacity,
                 usage_priority = "tertiary"
             },
             energy_production = args.energy_production,
