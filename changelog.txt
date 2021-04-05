@@ -1,0 +1,15 @@
+---------------------------------------------------------------------------------------------------
+Version: 1.0.5
+Date: 2021-04-05
+  Fixes:
+    - Fixed is_recipe_researched missing and causing a crash when trying to craft an item.
+---------------------------------------------------------------------------------------------------
+Version: 1.0.4
+Date: 2021-04-05
+  Fixes:
+    - Fixed generators not reading args.buffer_capacity correctly and instead setting nil buffer_capacity, which resulted in generators not working.
+---------------------------------------------------------------------------------------------------
+Version: 1.0.0
+Date: *
+  Features:
+    - Release

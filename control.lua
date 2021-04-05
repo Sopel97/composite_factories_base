@@ -99,6 +99,12 @@ do
         end
     end
 
+    local function is_recipe_researched(player, recipe_prototype)
+        local force = player.force
+        local recipes = force.recipes
+        return recipes[recipe_prototype.name] ~= nil
+    end
+
     local function get_research_ordering_value(tech_prototype)
         if not tech_prototype then
             return 0.0
