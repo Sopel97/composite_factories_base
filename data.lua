@@ -1124,9 +1124,9 @@ do
             crafting_categories = {cflib.processing_recipe_category_name},
             scale_entity_info_icon = true,
             module_specification = {
-                module_slots = 1
+                module_slots = 0
             },
-            allowed_effects = {"consumption", "speed", "productivity", "pollution"},
+            allowed_effects = {},
             crafting_speed = 1,
             energy_source = {
                 type = "electric",
