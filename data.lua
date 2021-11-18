@@ -190,16 +190,35 @@ do
                 return nil
             end
 
-            local icon = thing_proto.icon
-            local icon_size = thing_proto.icon_size
+            local sprite
+            local global_icon_size = thing_proto.icon_size
+            if thing_proto.icons then
+                sprite = {layers = {}}
 
-            args.scale = desired_size / icon_size
+                for _, ic in ipairs(thing_proto.icons) do
+                    local icon = ic.icon
+                    local icon_size = ic.icon_size or global_icon_size
+                    args.scale = desired_size / icon_size
 
-            return make_sprite(
-                args,
-                icon,
-                { icon_size, icon_size }
-            )
+                    table.insert(sprite.layers, make_sprite(
+                        args,
+                        icon,
+                        { icon_size, icon_size }
+                    ))
+                end
+            else
+                local icon = thing_proto.icon
+                local icon_size = global_icon_size
+                args.scale = desired_size / icon_size
+
+                return make_sprite(
+                    args,
+                    icon,
+                    { icon_size, icon_size }
+                )
+            end
+
+            return sprite
         end
 
         local function make_roof_left_sprite(args)
