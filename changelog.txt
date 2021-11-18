@@ -1,4 +1,13 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.1.0
+Date: 2021-11-18
+  Fixes:
+    - Fixed rendering of small factory buildings
+    - Fixed modules and beacon effects being applied to the factories
+    - Fixed incorrect handling of items with multiple icons
+  Features:
+    - Add support for energy drain
+---------------------------------------------------------------------------------------------------
 Version: 1.0.5
 Date: 2021-04-05
   Fixes:
