@@ -135,6 +135,10 @@ do
 
         local building_height_pixels = 64
         local front_inset_pixels = 16
+        if size < 8 then
+            building_height_pixels = size * 8
+            front_inset_pixels = size * 2
+        end
 
         local function get_roof_height_at(x)
             if x > half_size * tile_size_in_pixels then
@@ -387,9 +391,9 @@ do
         local function make_front()
             local ideal_num_front_sprites = (entity_size_in_pixels[1] - front_inset_pixels * 2) / (front_sprite_size[1] - 1)
 
-            local front_sprite_scale = ideal_num_front_sprites / math.floor(ideal_num_front_sprites)
+            local front_sprite_scale = ideal_num_front_sprites / math.ceil(ideal_num_front_sprites)
 
-            local num_front_sprites = math.floor(ideal_num_front_sprites)
+            local num_front_sprites = math.ceil(ideal_num_front_sprites)
 
             local xmax = num_front_sprites-1
             for x=0,xmax do
@@ -543,12 +547,12 @@ do
             -- so we have to have an integer amount of sprites in the y direction
             -- and a possibly fractional amount in the x direction
             -- And we can't have separate scales for x and y...
-            local roof_sprite_scale = ideal_num_roof_sprites[2] / math.floor(ideal_num_roof_sprites[2])
+            local roof_sprite_scale = ideal_num_roof_sprites[2] / math.ceil(ideal_num_roof_sprites[2])
 
             local num_roof_sprites = {
                 -- Divided by 2 because it's for one side
                 entity_size_in_pixels[1] / (roof_apparent_size[1] * roof_sprite_scale) / 2,
-                math.floor(ideal_num_roof_sprites[2])
+                math.ceil(ideal_num_roof_sprites[2])
             }
 
             local xmax = math.floor(num_roof_sprites[1])
@@ -625,6 +629,9 @@ do
         local function make_icons()
             local icon_size = 128
             local spacing = 32
+            if size < 8 then
+                spacing = 4 * size
+            end
 
             local energy_usage_number = 0
             if energy_usage then
