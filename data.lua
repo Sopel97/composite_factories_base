@@ -1132,7 +1132,7 @@ do
                 type = "electric",
                 usage_priority = "secondary-input",
                 emissions_per_minute = args.emissions_per_minute,
-                drain = "0W"
+                drain = args.drain or "0W"
             },
             energy_usage = args.energy_usage,
             animation = generate_composite_factory_picture(args.size, args.ingredients, args.results, args.energy_usage, "0W"),
