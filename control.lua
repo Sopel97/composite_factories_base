@@ -1047,6 +1047,175 @@ do
         end
     end
 
+    local function run_entity_counter_tool(e, is_alt_pressed)
+        local counts = {}
+
+        if #e.entities == 0 then
+            return
+        end
+
+        for _, entity in pairs(e.entities) do
+            if entity.valid then
+                local name = entity.name
+                if name == "entity-ghost" then
+                    name = entity.ghost_name
+                end
+                counts[name] = (counts[name] or 0) + 1
+
+                local module_inventory = entity.get_module_inventory()
+                if module_inventory and module_inventory.valid then
+                    for name, count in pairs(module_inventory.get_contents()) do
+                        counts[name] = (counts[name] or 0) + count
+                    end
+                end
+            end
+        end
+
+        if table_size(counts) == 0 then
+            return
+        end
+
+        local composite_factory_type = ""
+        if is_alt_pressed then
+            composite_factory_type = "generator"
+            composite_factory_creation_func = "cflib.add_composite_generator"
+        else
+            composite_factory_type = "assembler"
+            composite_factory_creation_func = "cflib.add_composite_factory"
+        end
+
+        selection_width = e.area.right_bottom.x - e.area.left_top.x
+        selection_height = e.area.right_bottom.y - e.area.left_top.y
+        selection_area = selection_width * selection_height
+
+        local output_lines = {
+            "-- This is a composite factory definition template.",
+            "-- You will need some basic mod creation knowledge to use this.",
+            "-- To create a composite factory one must make their own mod that",
+            "-- contains the definitions of the desired composite factories.",
+            "-- If you're unsure how to make such a mod check then out how it's done in",
+            "-- https://github.com/Sopel97/composite_factories_pyblock",
+            "-- Inspect the code in the repository above to learn how to define",
+            "-- composite factories. You can use the code from that repository",
+            "-- as a skeleton for your mod, just make sure to remove the existing pyblock content.",
+            composite_factory_creation_func .. "{",
+            "    name = \"\",",
+            "    size = " .. math.ceil(math.sqrt(selection_area)) .. ",",
+            "    unlocked_by = cflib.base_technology,",
+            "    subgroup = \"your collection (mod) should define an item subgroup to use here\",",
+        }
+
+        if composite_factory_type == "assembler" then
+            table.insert(output_lines, "    ingredients = {},")
+            table.insert(output_lines, "    results = {},")
+            table.insert(output_lines, "    energy_required = 1.0,")
+            table.insert(output_lines, "    energy_usage = 0MW,")
+            table.insert(output_lines, "    drain = 0MW,")
+            table.insert(output_lines, "    emissions_per_minute = 0,")
+        elseif composite_factory_type == "generator" then
+            table.insert(output_lines, "    energy_production = 0MW,")
+            table.insert(output_lines, "    buffer_capacity = 0MJ,")
+        else
+            return
+        end
+
+        table.insert(output_lines, "    constituent_buildings = {")
+
+        for name, count in pairs(counts) do
+            table.insert(output_lines, "        {\"" .. name .. "\", " .. count .. "},")
+        end
+        table.insert(output_lines, "    },")
+        table.insert(output_lines, "}")
+
+        local player = game.get_player(e.player_index)
+        local frame = multi_index_get(global, { "entity_counter_tool_frame", e.player_index })
+        if not frame or not frame.valid then
+            frame = player.gui.screen.add({
+                type = "frame",
+                name = "composite_factories_entity_counter_tool_frame",
+                direction = "vertical",
+                caption = "Composite factory definition template",
+            })
+
+            frame.add({
+                type = "sprite-button",
+                name = "composite_factories_entity_counter_tool_close_button",
+                style = "frame_action_button",
+                sprite = "utility/close_white",
+                hovered_sprite = "utility/close_black",
+                clicked_sprite = "utility/close_black",
+            })
+
+            local textbox = frame.add({ type = "text-box", name = "textbox" })
+            textbox.style.width = 640
+            textbox.style.height = 480
+
+            frame.force_auto_center()
+
+            multi_index_set(global, { "entity_counter_tool_frame", e.player_index }, frame)
+
+            player.opened = frame
+        end
+
+        local textbox = frame.textbox
+        textbox.text = table.concat(output_lines, "\n")
+        textbox.focus()
+        player.clear_cursor()
+    end
+
+    local function setup_entity_counter_tool()
+        script.on_event({ defines.events.on_player_selected_area }, function(e)
+            if e.item ~= "composite-factory-entity-counter-tool" then
+                return
+            end
+
+            run_entity_counter_tool(e, false)
+        end)
+
+        script.on_event({ defines.events.on_player_alt_selected_area }, function(e)
+            if e.item ~= "composite-factory-entity-counter-tool" then
+                return
+            end
+
+            run_entity_counter_tool(e, true)
+        end)
+
+        script.on_event({ defines.events.on_player_cursor_stack_changed }, function(e)
+            local player = game.get_player(e.player_index)
+            local held_item_stack = player.cursor_stack
+
+            if held_item_stack == nil then
+                return
+            end
+
+            if held_item_stack.valid_for_read and held_item_stack.name == "composite-factory-entity-counter-tool" then
+                player.cursor_stack.label = "Normal mode: Assembler. Shift mode: Generator."
+            end
+        end)
+
+        script.on_event(defines.events.on_gui_click, function(e)
+            if e.element and e.element.valid and e.element.name == "composite_factories_entity_counter_tool_close_button" then
+                local frame = multi_index_get(global, { "entity_counter_tool_frame", e.player_index })
+                if frame and frame.valid then
+                    frame.destroy()
+                    multi_index_set(global, { "entity_counter_tool_frame", e.player_index }, nil)
+                    game.get_player(e.player_index).opened = nil
+                end
+            end
+        end)
+
+        script.on_event(defines.events.on_gui_closed, function(e)
+            if e.element and e.element.valid and e.element.name == "composite_factories_entity_counter_tool_frame" then
+                local frame = multi_index_get(global, { "entity_counter_tool_frame", e.player_index })
+                if frame and frame.valid then
+                    frame.destroy()
+                    multi_index_set(global, { "entity_counter_tool_frame", e.player_index }, nil)
+                    game.get_player(e.player_index).opened = nil
+                end
+            end
+        end)
+    end
+
     script.on_nth_tick(10, function(event)
         on_something_while_open(event, cflib.on_every_10th_tick_while_open)
     end)
@@ -1056,4 +1225,6 @@ do
     end)
 
     setup_material_exchange_container_gui_global_events()
+
+    setup_entity_counter_tool()
 end

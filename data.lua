@@ -1257,4 +1257,38 @@ do
             vehicle_impact_sound = {filename = "__base__/sound/car-metal-impact.ogg", volume = 0.65}
         }})
     end
+
+    data:extend({
+        {
+            type = "custom-input",
+            name = "composite-factory-entity-counter-tool",
+            key_sequence = "ALT + K",
+            action = "spawn-item",
+            item_to_spawn = "composite-factory-entity-counter-tool",
+        },
+        {
+            type = "selection-tool",
+            name = "composite-factory-entity-counter-tool",
+            icon = "__composite_factories_base__/graphics/icons/entity_counter_tool.png",
+            icon_size = 64,
+            icon_mipmaps = 4,
+            stack_size = 1,
+            flags = { "hidden", "not-stackable", "spawnable" },
+            selection_mode = { "blueprint" },
+            selection_color = { r = 1, g = 1 },
+            selection_cursor_box_type = "entity",
+            alt_selection_mode = { "any-entity" },
+            alt_selection_color = { r = 1, g = 1, b = 0.5 },
+            alt_selection_cursor_box_type = "entity",
+            draw_label_for_cursor_render = true,
+        },
+        {
+            type = "shortcut",
+            name = "composite-factory-entity-counter-tool",
+            icon = { filename = "__composite_factories_base__/graphics/icons/entity_counter_tool.png", size = 64, mipmap_count = 4 },
+            action = "spawn-item",
+            item_to_spawn = "composite-factory-entity-counter-tool",
+            associated_control_input = "composite-factory-entity-counter-tool",
+        },
+    })
 end
