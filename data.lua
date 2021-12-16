@@ -1011,6 +1011,71 @@ do
         end
     end
 
+    local function make_composite_factory_icon(results)
+        local base_icon = {
+            icon = "__composite_factories_base__/graphics/icons/composite_factory.png",
+            icon_size = 64
+        }
+
+        local factory_icons = {
+            base_icon
+        }
+
+        local result_icons = {}
+        for _, result in ipairs(results) do
+            local result_name = result.name or result[1]
+            local thing_proto = data.raw.fluid[result_name] or data.raw.item[result_name] or data.raw.module[result_name] or data.raw.fish[result_name]
+            if thing_proto then
+                if thing_proto.icon then
+                    local icons = {
+                        {
+                            icon = thing_proto.icon,
+                            icon_size = thing_proto.icon_size
+                        }
+                    }
+                    table.insert(result_icons, icons)
+                elseif thing_proto.icons then
+                    local icons = {}
+                    for _, icon in ipairs(thing_proto.icons) do
+                        table.insert(icons, {
+                            icon = icon.icon,
+                            icon_size = icon.icon_size or thing_proto.icon_size
+                        })
+                    end
+                    table.insert(result_icons, icons)
+                end
+            end
+        end
+
+        if #result_icons == 1 then
+            for _, icon in ipairs(result_icons[1]) do
+                icon.scale = 0.8 * (32.0 / icon.icon_size)
+                table.insert(factory_icons, icon)
+            end
+        else
+            local shifts = {
+                {-8, -8},
+                { 8, -8},
+                {-8,  8},
+                { 8,  8}
+            }
+
+            for i, icons in ipairs(result_icons) do
+                for _, icon in ipairs(icons) do
+                    icon.scale = 0.4 * (32.0 / icon.icon_size)
+                    icon.shift = shifts[i]
+                    table.insert(factory_icons, icon)
+                end
+
+                if i == 4 then
+                    break
+                end
+            end
+        end
+
+        return factory_icons
+    end
+
     cflib.add_composite_factory = function(args)
         local factory_full_name = cflib.make_composite_factory_name(args.name)
         local processing_full_name = cflib.make_processing_recipe_name(args.name)
@@ -1116,13 +1181,14 @@ do
             }})
         end
 
+        local factory_icon = make_composite_factory_icon(args.results)
+
         -- Composite factory item
         data:extend({{
             type = "item",
             name = factory_full_name,
             localised_name = localised_name,
-            icon = "__composite_factories_base__/graphics/icons/composite_factory.png",
-            icon_size = 64,
+            icons = factory_icon,
             flags = {},
             subgroup = args.subgroup,
             order = "b",
@@ -1136,8 +1202,7 @@ do
             name = factory_full_name,
             localised_name = localised_name,
             fixed_recipe = processing_full_name,
-            icon = "__composite_factories_base__/graphics/icons/composite_factory.png",
-            icon_size = 64,
+            icons = factory_icon,
             show_recipe_icon = false,
             flags = {"placeable-neutral", "player-creation"},
             minable = {mining_time = 1, result = factory_full_name},
