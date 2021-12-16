@@ -1111,7 +1111,7 @@ do
                 pipe_covers = pipecoverspictures(),
                 base_area = 10,
                 base_level = -1,
-                pipe_connections = {{ type="input", position = position }},
+                pipe_connections = {{ type = "input", position = position }},
                 secondary_draw_orders = { north = -1 }
             })
         end
@@ -1124,9 +1124,9 @@ do
                 production_type = "output",
                 pipe_picture = assembler2pipepictures(),
                 pipe_covers = pipecoverspictures(),
-                base_area = 10,
-                base_level = -1,
-                pipe_connections = {{ type="output", position = position }},
+                base_area = 1,
+                base_level = 1,
+                pipe_connections = {{ type = "output", position = position }},
                 secondary_draw_orders = { north = -1 }
             })
         end
