@@ -57,7 +57,7 @@ do
     data_gui_styles[cflib.make_gui_style_name("material-exchange-container-gui")] = {
         type = "frame_style",
         manimal_height = 100,
-        maximal_height = 600
+        maximal_height = 2000
     }
 
     data_gui_styles[cflib.make_gui_style_name("material-exchange-container-gui-exchange-table")] = {
