@@ -1157,22 +1157,26 @@ do
             "-- composite factories. You can use the code from that repository",
             "-- as a skeleton for your mod, just make sure to remove the existing pyblock content.",
             composite_factory_creation_func .. "{",
-            "    name = \"\",",
+            "    name = \"\", -- the name of the building/entity",
             "    size = " .. math.ceil(math.sqrt(selection_area)) .. ",",
-            "    unlocked_by = cflib.base_technology,",
-            "    subgroup = \"your collection (mod) should define an item subgroup to use here\",",
+            "    unlocked_by = cflib.base_technology, -- default tech",
+            "    subgroup = \"\", -- your collection (mod) should define an item subgroup to use here",
+            "    roof_tile_cost = 1.0, -- default",
+            "    wall_tile_cost = 10.0, -- default",
+            "    roof_material = \"steel-plate\", -- default",
+            "    wall_material = \"stone-brick\", -- default",
         }
 
         if composite_factory_type == "assembler" then
-            table.insert(output_lines, "    ingredients = {},")
-            table.insert(output_lines, "    results = {},")
-            table.insert(output_lines, "    energy_required = 1.0,")
-            table.insert(output_lines, "    energy_usage = 0MW,")
-            table.insert(output_lines, "    drain = 0MW,")
-            table.insert(output_lines, "    emissions_per_minute = 0,")
+            table.insert(output_lines, "    ingredients = {}, -- fill yourself")
+            table.insert(output_lines, "    results = {}, -- fill yourself")
+            table.insert(output_lines, "    energy_required = 1.0, -- default 1s crafting time")
+            table.insert(output_lines, "    energy_usage = 0MW, -- fill yourself")
+            table.insert(output_lines, "    drain = 0MW, -- fill yourself")
+            table.insert(output_lines, "    emissions_per_minute = 0, -- fill yourself")
         elseif composite_factory_type == "generator" then
-            table.insert(output_lines, "    energy_production = 0MW,")
-            table.insert(output_lines, "    buffer_capacity = 0MJ,")
+            table.insert(output_lines, "    energy_production = 0MW, -- fill yourself")
+            table.insert(output_lines, "    buffer_capacity = 0MJ, -- fill yourself")
         else
             return
         end

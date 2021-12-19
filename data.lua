@@ -1091,8 +1091,12 @@ do
 
         local area = math.floor(args.size * args.size)
         local perimeter = math.floor(args.size * 4)
-        table.insert(args.constituent_buildings, { "steel-plate", area })
-        table.insert(args.constituent_buildings, { "stone-brick", perimeter })
+
+        local roof_cost = { args.roof_material or "steel-plate", math.ceil((args.roof_tile_cost or 1) * area) }
+        local wall_cost = { args.wall_material or "stone-brick" , math.ceil((args.wall_tile_cost or 10) * perimeter) }
+
+        table.insert(args.constituent_buildings, roof_cost)
+        table.insert(args.constituent_buildings, wall_cost)
 
         local localised_name = {"", {"item-name.composite-factory"}, ": "}
         append_localised_things(localised_name, args.results)
@@ -1259,8 +1263,12 @@ do
 
         local area = math.floor(args.size * args.size)
         local perimeter = math.floor(args.size * 4)
-        table.insert(args.constituent_buildings, { "steel-plate", area })
-        table.insert(args.constituent_buildings, { "stone-brick", perimeter })
+
+        local roof_cost = { args.roof_material or "steel-plate", math.ceil((args.roof_tile_cost or 1) * area) }
+        local wall_cost = { args.wall_material or "stone-brick" , math.ceil((args.wall_tile_cost or 10) * perimeter) }
+
+        table.insert(args.constituent_buildings, roof_cost)
+        table.insert(args.constituent_buildings, wall_cost)
 
         local localised_name = {"", {"item-name.composite-generator"}, ": ", args.energy_production}
 
