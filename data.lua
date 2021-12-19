@@ -976,9 +976,9 @@ do
         unlocked_by = cflib.base_technology
     }
 
-    local function adjust_fluid_box_position(position)
+    local function adjust_fluid_box_position(position, half_size)
         return {
-            math.floor(position[1] + 0.5) + 0.5,
+            math.floor(position[1] + 0.5) + 0.5 + (half_size % 1.0),
             position[2]
         }
     end
@@ -1103,7 +1103,7 @@ do
 
         local fluid_input_spacing = args.size / (num_fluid_inputs+1)
         for i=1, num_fluid_inputs do
-            local position = adjust_fluid_box_position({-half_size + i * fluid_input_spacing, -half_size-0.5})
+            local position = adjust_fluid_box_position({-half_size + i * fluid_input_spacing, -half_size-0.5}, half_size)
 
             table.insert(fluid_boxes, {
                 production_type = "input",
@@ -1118,7 +1118,7 @@ do
 
         local fluid_output_spacing = args.size / (num_fluid_outputs+1)
         for i=1, num_fluid_outputs do
-            local position = adjust_fluid_box_position({-half_size + i * fluid_output_spacing, half_size+0.5})
+            local position = adjust_fluid_box_position({-half_size + i * fluid_output_spacing, half_size+0.5}, half_size)
 
             table.insert(fluid_boxes, {
                 production_type = "output",
