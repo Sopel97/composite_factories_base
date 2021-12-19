@@ -2,6 +2,7 @@ require("lib/core")
 
 cflib.init_flags = {}
 cflib.event_handlers = {}
+cflib.global_event_handlers = {}
 
     -- TODO: try to unify these with event_handlers?
 cflib.on_every_10th_tick_while_open = {}
@@ -199,14 +200,32 @@ do
     local function add_gui_event_handler(event_type, player, gui_element_name, func)
         local player_index = player.index
 
-        multi_index_set(cflib.event_handlers, {player_index, event_type, gui_element_name}, func)
+        multi_index_set(cflib.event_handlers, { player_index, event_type, gui_element_name }, func)
+    end
+
+    -- TODO: move all stuff like that to cflib.*?
+    local function add_global_gui_event_handler(event_type, func)
+        handlers = multi_index_get(cflib.global_event_handlers, { event_type })
+        if handlers == nil then
+            multi_index_set(cflib.global_event_handlers, { event_type }, { func })
+        else
+            table.insert(handlers, func)
+        end
     end
 
     local function get_gui_event_handler(event_type, event)
+        if event.element == nil then
+            return nil
+        end
+
         local player_index = event.player_index
         local gui_element_name = event.element.name
 
-        return multi_index_get(cflib.event_handlers, {player_index, event_type, gui_element_name})
+        return multi_index_get(cflib.event_handlers, { player_index, event_type, gui_element_name })
+    end
+
+    local function get_global_gui_event_handlers(event_type)
+        return multi_index_get(cflib.global_event_handlers, { event_type })
     end
 
     -- TODO: separate file for every gui, interface through cflib.* and global.*?
@@ -752,10 +771,10 @@ do
     end
 
     local function update_material_exchange_container_gui(gui, container, player)
-        local prev_container_contents_path = {"material_exchange_container", "prev_container_contents", player.index}
+        local prev_container_contents_path = { player.index, "material_exchange_container", "prev_container_contents" }
         local prev_container_contents = multi_index_get(global, prev_container_contents_path)
 
-        local prev_filters_path = {"material_exchange_container", "prev_filters", player.index}
+        local prev_filters_path = { player.index, "material_exchange_container", "prev_filters" }
         local prev_filters = multi_index_get(global, prev_filters_path)
 
         local hide_not_craftable_checkbox_name = cflib.make_gui_element_name("material-exchange-container-gui-hide-not-craftable")
@@ -895,6 +914,15 @@ do
         end
     end
 
+    local function get_material_exchange_container_gui(player)
+        local material_exchange_container_gui_name = cflib.make_gui_element_name("material-exchange-container-gui")
+
+        -- TODO: maybe stup guis for each player when they connect? would be easier to reset on config change.
+        local gui = player.gui.relative[material_exchange_container_gui_name] or setup_material_exchange_container_gui(player)
+
+        return gui
+    end
+
     local function setup_material_exchange_container_gui_global_events()
         cflib.on_every_10th_tick_while_open[cflib.make_gui_element_name("material-exchange-container-gui")] = function(player, opened_gui)
             local gui = opened_gui.gui
@@ -907,15 +935,57 @@ do
             local entity = opened_gui.entity
             update_material_exchange_container_gui(gui, entity, player)
         end
-    end
 
-    local function get_material_exchange_container_gui(player)
-        local material_exchange_container_gui_name = cflib.make_gui_element_name("material-exchange-container-gui")
+        add_global_gui_event_handler(defines.events.on_gui_opened, function(event)
+            if not event.gui_type == defines.gui_type.entity then
+                return
+            end
 
-        -- TODO: maybe stup guis for each player when they connect? would be easier to reset on config change.
-        local gui = player.gui.relative[material_exchange_container_gui_name] or setup_material_exchange_container_gui(player)
+            if event.entity == nil then
+                return
+            end
 
-        return gui
+            if event.entity.type ~= "container" then
+                return
+            end
+
+            if event.entity.name ~= cflib.make_container_name("material-exchange-container") then
+                return
+            end
+
+            local player = game.get_player(event.player_index)
+            local gui = get_material_exchange_container_gui(player)
+            update_material_exchange_container_gui(gui, event.entity, player)
+
+            multi_index_set(global, { player.index, "opened_guis" }, { gui = gui, entity = event.entity })
+        end)
+
+        add_global_gui_event_handler(defines.events.on_gui_closed, function(event)
+            if not event.gui_type == defines.gui_type.entity then
+                return
+            end
+
+            if event.entity == nil then
+                return
+            end
+
+            if event.entity.type ~= "container" then
+                return
+            end
+
+            if event.entity.name ~= cflib.make_container_name("material-exchange-container") then
+                return
+            end
+
+            local player = game.get_player(event.player_index)
+            local gui = get_material_exchange_container_gui(player)
+
+            local path = { player.index, "opened_guis" }
+            local opened_gui = multi_index_get(global, path)
+            if opened_gui and opened_gui.gui.name == gui.name then
+                multi_index_set(global, path, nil)
+            end
+        end)
     end
 
     local function setup_cache()
@@ -927,7 +997,7 @@ do
 
         for _, player in pairs(game.players) do
             -- Needed for rewiring to the new gui
-            local path = { "opened_guis", player.index }
+            local path = { player.index, "opened_guis" }
             local opened_gui = multi_index_get(global, path)
             local opened_gui_name = opened_gui and opened_gui.gui.name
 
@@ -937,8 +1007,8 @@ do
             set_not_initialized(player, "material-exchange-container-gui-events")
 
             -- Reset the previous state so that the gui is updated for the first time.
-            local prev_container_contents_path = {"material_exchange_container", "prev_container_contents", player.index}
-            local prev_filters_path = {"material_exchange_container", "prev_filters", player.index}
+            local prev_container_contents_path = { player.index, "material_exchange_container", "prev_container_contents" }
+            local prev_filters_path = { player.index, "material_exchange_container", "prev_filters" }
             multi_index_set(global, prev_container_contents_path, nil)
             multi_index_set(global, prev_filters_path, nil)
 
@@ -970,69 +1040,37 @@ do
         reinitialize()
     end)
 
-    script.on_event(defines.events.on_gui_click, function(event)
-        local handler = get_gui_event_handler(defines.events.on_gui_click, event)
+    local function handle_gui_event(event_type, event)
+        local global_handlers = get_global_gui_event_handlers(event_type)
+        if global_handlers then
+            for _, global_handler in ipairs(global_handlers) do
+                global_handler(event)
+            end
+        end
+
+        local handler = get_gui_event_handler(event_type, event)
         if handler then
             handler(event)
         end
+    end
+
+    script.on_event(defines.events.on_gui_click, function(event)
+        handle_gui_event(defines.events.on_gui_click, event)
     end)
 
     script.on_event(defines.events.on_gui_opened, function(event)
-        if not event.gui_type == defines.gui_type.entity then
-            return
-        end
-
-        if event.entity == nil then
-            return
-        end
-
-        if event.entity.type ~= "container" then
-            return
-        end
-
-        if event.entity.name ~= cflib.make_container_name("material-exchange-container") then
-            return
-        end
-
-        local player = game.get_player(event.player_index)
-        local gui = get_material_exchange_container_gui(player)
-        update_material_exchange_container_gui(gui, event.entity, player)
-
-        multi_index_set(global, { "opened_guis", player.index }, { gui = gui, entity = event.entity })
+        handle_gui_event(defines.events.on_gui_opened, event)
     end)
 
     script.on_event(defines.events.on_gui_closed, function(event)
-        if not event.gui_type == defines.gui_type.entity then
-            return
-        end
-
-        if event.entity == nil then
-            return
-        end
-
-        if event.entity.type ~= "container" then
-            return
-        end
-
-        if event.entity.name ~= cflib.make_container_name("material-exchange-container") then
-            return
-        end
-
-        local player = game.get_player(event.player_index)
-        local gui = get_material_exchange_container_gui(player)
-
-        local path = { "opened_guis", player.index }
-        local opened_gui = multi_index_get(global, path)
-        if opened_gui and opened_gui.gui.name == gui.name then
-            multi_index_set(global, path, nil)
-        end
+        handle_gui_event(defines.events.on_gui_closed, event)
     end)
 
     local function on_something_while_open(event, something)
         for _, player in pairs(game.players) do
             local player_index = player.index
 
-            local path = { "opened_guis", player_index }
+            local path = { player_index, "opened_guis" }
             local opened_gui = multi_index_get(global, path)
             if opened_gui then
                 if opened_gui.entity.valid then
@@ -1045,6 +1083,26 @@ do
                 end
             end
         end
+    end
+
+    local function setup_entity_counter_tool_gui_events(player)
+        add_gui_event_handler(defines.events.on_gui_click, player, "composite_factories_entity_counter_tool_close_button", function(e)
+            local frame = multi_index_get(global, { e.player_index, "entity_counter_tool_frame" })
+            if frame and frame.valid then
+                frame.destroy()
+                multi_index_set(global, { e.player_index, "entity_counter_tool_frame" }, nil)
+                game.get_player(e.player_index).opened = nil
+            end
+        end)
+
+        add_gui_event_handler(defines.events.on_gui_closed, player, "composite_factories_entity_counter_tool_frame", function(e)
+            local frame = multi_index_get(global, { e.player_index, "entity_counter_tool_frame" })
+            if frame and frame.valid then
+                frame.destroy()
+                multi_index_set(global, { e.player_index, "entity_counter_tool_frame" }, nil)
+                game.get_player(e.player_index).opened = nil
+            end
+        end)
     end
 
     local function run_entity_counter_tool(e, is_alt_pressed)
@@ -1128,7 +1186,12 @@ do
         table.insert(output_lines, "}")
 
         local player = game.get_player(e.player_index)
-        local frame = multi_index_get(global, { "entity_counter_tool_frame", e.player_index })
+        if not is_initialized(player, "entity-counter-tool-gui-events") then
+            setup_entity_counter_tool_gui_events(player)
+            set_initialized(player, "entity-counter-tool-gui-events")
+        end
+
+        local frame = multi_index_get(global, { e.player_index, "entity_counter_tool_frame" })
         if not frame or not frame.valid then
             frame = player.gui.screen.add({
                 type = "frame",
@@ -1152,7 +1215,7 @@ do
 
             frame.force_auto_center()
 
-            multi_index_set(global, { "entity_counter_tool_frame", e.player_index }, frame)
+            multi_index_set(global, { e.player_index, "entity_counter_tool_frame" }, frame)
 
             player.opened = frame
         end
@@ -1163,7 +1226,7 @@ do
         player.clear_cursor()
     end
 
-    local function setup_entity_counter_tool()
+    local function setup_entity_counter_tool_global_events()
         script.on_event({ defines.events.on_player_selected_area }, function(e)
             if e.item ~= "composite-factory-entity-counter-tool" then
                 return
@@ -1192,28 +1255,6 @@ do
                 player.cursor_stack.label = "Normal mode: Assembler. Shift mode: Generator."
             end
         end)
-
-        script.on_event(defines.events.on_gui_click, function(e)
-            if e.element and e.element.valid and e.element.name == "composite_factories_entity_counter_tool_close_button" then
-                local frame = multi_index_get(global, { "entity_counter_tool_frame", e.player_index })
-                if frame and frame.valid then
-                    frame.destroy()
-                    multi_index_set(global, { "entity_counter_tool_frame", e.player_index }, nil)
-                    game.get_player(e.player_index).opened = nil
-                end
-            end
-        end)
-
-        script.on_event(defines.events.on_gui_closed, function(e)
-            if e.element and e.element.valid and e.element.name == "composite_factories_entity_counter_tool_frame" then
-                local frame = multi_index_get(global, { "entity_counter_tool_frame", e.player_index })
-                if frame and frame.valid then
-                    frame.destroy()
-                    multi_index_set(global, { "entity_counter_tool_frame", e.player_index }, nil)
-                    game.get_player(e.player_index).opened = nil
-                end
-            end
-        end)
     end
 
     script.on_nth_tick(10, function(event)
@@ -1226,5 +1267,5 @@ do
 
     setup_material_exchange_container_gui_global_events()
 
-    setup_entity_counter_tool()
+    setup_entity_counter_tool_global_events()
 end
