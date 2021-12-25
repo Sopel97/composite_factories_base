@@ -7,6 +7,8 @@ do
     cflib.item_group_name = cflib.name_prefix .. "items"
     cflib.processing_recipe_group_name = cflib.name_prefix .. "processing"
     cflib.processing_recipe_category_name = cflib.name_prefix .. "processing"
+    cflib.deconstruction_recipe_category_name = cflib.name_prefix .. "deconstruction"
+    cflib.deconstructor_name = cflib.name_prefix .. "deconstructor"
     cflib.time_duration_indicator_sprite_name = cflib.name_prefix .. "time-duration-indicator"
     cflib.energy_indicator_sprite_name = cflib.name_prefix .. "energy-indicator"
     cflib.info_sprite_name = cflib.name_prefix .. "info"
@@ -34,6 +36,10 @@ do
 
     cflib.make_processing_recipe_name = function(name)
         return cflib.name_prefix .. name .. "-processing"
+    end
+
+    cflib.make_deconstruction_recipe_name = function(name)
+        return cflib.name_prefix .. name .. "-deconstruction"
     end
 
     cflib.make_generator_name = function(name)

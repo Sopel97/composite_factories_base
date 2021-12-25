@@ -55,6 +55,13 @@ do
 
     data:extend {
         {
+            type = "recipe-category",
+            name = cflib.deconstruction_recipe_category_name
+        }
+    }
+
+    data:extend {
+        {
             type = "sprite",
             name = cflib.time_duration_indicator_sprite_name,
             filename = "__core__/graphics/time-editor-icon.png",
@@ -1079,6 +1086,7 @@ do
     cflib.add_composite_factory = function(args)
         local factory_full_name = cflib.make_composite_factory_name(args.name)
         local processing_full_name = cflib.make_processing_recipe_name(args.name)
+        local deconstruction_full_name = cflib.make_deconstruction_recipe_name(args.name)
 
         local base_sprite_size = 3
         local base_hr_sprite_size = 6
@@ -1186,6 +1194,30 @@ do
         end
 
         local factory_icon = make_composite_factory_icon(args.results)
+        local factory_icon_deconstruction = table.deepcopy(factory_icon)
+        table.insert(factory_icon_deconstruction, {
+            icon = "__core__/graphics/icons/close-white.png",
+            icon_size = 32,
+            tint = { 255, 0, 0, 128 }
+        })
+
+        -- Composite factory building item deconstruction recipe
+        data:extend({{
+            type = "recipe",
+            name = deconstruction_full_name,
+            icons = factory_icon_deconstruction,
+            localised_name = localised_name,
+            enabled = true,
+            energy_required = 30.0,
+            subgroup = args.subgroup,
+            flags = { "hidden" },
+            hidden = true,
+            category = cflib.deconstruction_recipe_category_name,
+            ingredients = {
+                {factory_full_name, 1}
+            },
+            results = args.constituent_buildings
+        }})
 
         -- Composite factory item
         data:extend({{
@@ -1250,6 +1282,7 @@ do
 
     cflib.add_composite_generator = function(args)
         local full_name = cflib.make_generator_name(args.name)
+        local deconstruction_full_name = cflib.make_deconstruction_recipe_name(args.name)
 
         local base_sprite_size = 3
         local base_hr_sprite_size = 6
@@ -1285,6 +1318,34 @@ do
         if args.unlocked_by then
             add_recipe_unlock(full_name, args.unlocked_by)
         end
+
+        -- Composite factory building item deconstruction recipe
+        data:extend({{
+            type = "recipe",
+            name = deconstruction_full_name,
+            icons = {
+                {
+                    icon = "__composite_factories_base__/graphics/icons/composite_generator.png",
+                    icon_size = 64,
+                },
+                {
+                    icon = "__core__/graphics/icons/close-white.png",
+                    icon_size = 32,
+                    tint = { 255, 0, 0, 128 }
+                },
+            },
+            localised_name = localised_name,
+            enabled = true,
+            energy_required = 30.0,
+            subgroup = args.subgroup,
+            flags = { "hidden" },
+            hidden = true,
+            category = cflib.deconstruction_recipe_category_name,
+            ingredients = {
+                {full_name, 1}
+            },
+            results = args.constituent_buildings
+        }})
 
         -- Composite factory item
         data:extend({{
@@ -1380,4 +1441,252 @@ do
             associated_control_input = "composite-factory-entity-counter-tool",
         },
     })
+
+    data:extend({{
+        type = "item",
+        name = cflib.deconstructor_name,
+        icons = {
+            {
+                icon = "__base__/graphics/icons/electric-furnace.png",
+                icon_size = 64,
+                icon_mipmaps = 4,
+                tint = {128, 128, 128},
+            }
+        },
+        flags = {},
+        subgroup = container_item_subgroup,
+        order = "z",
+        place_result = cflib.deconstructor_name,
+        stack_size = 1
+    }})
+
+    -- Container recipe
+    data:extend({{
+        type = "recipe",
+        name = cflib.deconstructor_name,
+        enabled = false,
+        energy_required = 10,
+        category = "crafting",
+        ingredients = {
+            {"steel-chest", 50},
+            {"iron-plate", 200},
+            {"stone-brick", 200},
+            {"steel-plate", 200}
+        },
+        results = {
+            { cflib.deconstructor_name, 1 }
+        },
+        unlocked_by = cflib.base_technology,
+    }})
+
+    data:extend({{
+        type = "furnace",
+        name = cflib.deconstructor_name,
+        icon = "__base__/graphics/icons/electric-furnace.png",
+        icon_size = 64, icon_mipmaps = 4,
+        flags = {"placeable-neutral", "placeable-player", "player-creation"},
+        minable = {mining_time = 1.0, result = cflib.deconstructor_name},
+        max_health = 1000,
+        corpse = "electric-furnace-remnants",
+        dying_explosion = "electric-furnace-explosion",
+        collision_box = {{-1.2*2, -1.2*2}, {1.2*2, 1.2*2}},
+        selection_box = {{-1.5*2, -1.5*2}, {1.5*2, 1.5*2}},
+        crafting_categories = {cflib.deconstruction_recipe_category_name},
+        result_inventory_size = 64,
+        crafting_speed = 1,
+        energy_usage = "1MW",
+        source_inventory_size = 1,
+        energy_source = {
+            type = "electric",
+            usage_priority = "secondary-input",
+            emissions_per_minute = 1
+        },
+        working_sound = {
+            sound = {
+                filename = "__base__/sound/electric-furnace.ogg",
+                volume = 0.6
+            },
+            audible_distance_modifier = 0.6,
+            fade_in_ticks = 4,
+            fade_out_ticks = 20
+        },
+        animation = {
+            layers = {
+                {
+                    filename = "__base__/graphics/entity/electric-furnace/electric-furnace-base.png",
+                    priority = "high",
+                    width = 129,
+                    height = 100,
+                    frame_count = 1,
+                    shift = {0.421875*2, 0},
+                    scale = 2,
+                    tint = {128, 128, 128},
+                    hr_version = {
+                        filename = "__base__/graphics/entity/electric-furnace/hr-electric-furnace.png",
+                        priority = "high",
+                        width = 239,
+                        height = 219,
+                        frame_count = 1,
+                        tint = {128, 128, 128},
+                        shift = util.by_pixel(0.75*2, 5.75*2)
+                    }
+                },
+                {
+                    filename = "__base__/graphics/entity/electric-furnace/electric-furnace-shadow.png",
+                    priority = "high",
+                    width = 129,
+                    height = 100,
+                    frame_count = 1,
+                    shift = {0.421875*2, 0},
+                    draw_as_shadow = true,
+                    tint = {128, 128, 128},
+                    scale = 2,
+                    hr_version = {
+                        filename = "__base__/graphics/entity/electric-furnace/hr-electric-furnace-shadow.png",
+                        priority = "high",
+                        width = 227,
+                        height = 171,
+                        frame_count = 1,
+                        draw_as_shadow = true,
+                        tint = {128, 128, 128},
+                        shift = util.by_pixel(11.25*2, 7.75*2)
+                    }
+                }
+            }
+        },
+        working_visualisations = {
+            {
+                draw_as_light = true,
+                fadeout = true,
+                animation = {
+                    layers = {
+                        {
+                            filename = "__base__/graphics/entity/electric-furnace/electric-furnace-heater.png",
+                            priority = "high",
+                            width = 25,
+                            height = 15,
+                            frame_count = 12,
+                            animation_speed = 0.5,
+                            shift = {0.015625*2, 0.890625*2},
+                            tint = {128, 128, 128},
+                            scale = 2,
+                            hr_version = {
+                                filename = "__base__/graphics/entity/electric-furnace/hr-electric-furnace-heater.png",
+                                priority = "high",
+                                width = 60,
+                                height = 56,
+                                frame_count = 12,
+                                animation_speed = 0.5,
+                                tint = {128, 128, 128},
+                                shift = util.by_pixel(1.75*2, 32.75*2)
+                            }
+                        },
+                        {
+                            filename = "__base__/graphics/entity/electric-furnace/electric-furnace-light.png",
+                            blend_mode = "additive",
+                            width = 104,
+                            height = 102,
+                            repeat_count = 12,
+                            shift = util.by_pixel(0, 0),
+                            tint = {128, 128, 128},
+                            scale = 2,
+                            hr_version = {
+                                filename = "__base__/graphics/entity/electric-furnace/hr-electric-furnace-light.png",
+                                blend_mode = "additive",
+                                width = 202,
+                                height = 202,
+                                repeat_count = 12,
+                                tint = {128, 128, 128},
+                                shift = util.by_pixel(1*2, 0*2)
+                            }
+                        },
+                    }
+                },
+            },
+            {
+                draw_as_light = true,
+                draw_as_sprite = false,
+                fadeout = true,
+                animation = {
+                    filename = "__base__/graphics/entity/electric-furnace/electric-furnace-ground-light.png",
+                    blend_mode = "additive",
+                    width = 82,
+                    height = 64,
+                    shift = util.by_pixel(4*2, 68*2),
+                    tint = {128, 128, 128},
+                    scale = 2,
+                    hr_version =
+                    {
+                        filename = "__base__/graphics/entity/electric-furnace/hr-electric-furnace-ground-light.png",
+                        blend_mode = "additive",
+                        width = 166,
+                        height = 124,
+                        tint = {128, 128, 128},
+                        shift = util.by_pixel(3*2, 69*2)
+                    }
+                },
+            },
+            {
+                animation = {
+                    filename = "__base__/graphics/entity/electric-furnace/electric-furnace-propeller-1.png",
+                    priority = "high",
+                    width = 19,
+                    height = 13,
+                    frame_count = 4,
+                    animation_speed = 0.5,
+                    shift = {-0.671875*2, -0.640625*2},
+                    tint = {128, 128, 128},
+                    scale = 2,
+                    hr_version =
+                    {
+                        filename = "__base__/graphics/entity/electric-furnace/hr-electric-furnace-propeller-1.png",
+                        priority = "high",
+                        width = 37,
+                        height = 25,
+                        frame_count = 4,
+                        animation_speed = 0.5,
+                        tint = {128, 128, 128},
+                        shift = util.by_pixel(-20.5*2, -18.5*2)
+                    }
+                }
+            },
+            {
+                animation = {
+                    filename = "__base__/graphics/entity/electric-furnace/electric-furnace-propeller-2.png",
+                    priority = "high",
+                    width = 12,
+                    height = 9,
+                    frame_count = 4,
+                    animation_speed = 0.5,
+                    shift = {0.0625*2, -1.234375*2},
+                    scale = 2,
+                    tint = {128, 128, 128},
+                    hr_version = {
+                        filename = "__base__/graphics/entity/electric-furnace/hr-electric-furnace-propeller-2.png",
+                        priority = "high",
+                        width = 23,
+                        height = 15,
+                        frame_count = 4,
+                        animation_speed = 0.5,
+                        tint = {128, 128, 128},
+                        shift = util.by_pixel(3.5*2, -38*2)
+                    }
+                }
+            }
+        },
+        water_reflection = {
+            pictures = {
+                filename = "__base__/graphics/entity/electric-furnace/electric-furnace-reflection.png",
+                priority = "extra-high",
+                width = 24,
+                height = 24,
+                shift = util.by_pixel(10, 80),
+                variation_count = 1,
+                tint = {128, 128, 128},
+                scale = 10
+            },
+            rotate = false,
+            orientation_to_variation = false
+        }
+    }})
 end
