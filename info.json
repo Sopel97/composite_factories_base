@@ -8,6 +8,7 @@
 	"homepage": "",
 	"description": "A library mod for other composite factories mods.",
 	"dependencies": [
-    	"base >= 1.0.0"
+    	"base >= 1.0.0",
+    	"fuel_value_my_ass >= 0.2.1"
 	]
 }
