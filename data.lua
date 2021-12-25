@@ -1404,7 +1404,7 @@ cflib.add_composite_generator{
         { "wooden-chest", 1 },
         { type="fluid", name="water", amount=123 },
     },
-    energy_production_per_craft = "10MW", -- fill yourself
+    energy_production_per_craft = "1MJ", -- fill yourself
     energy_required = 2,
     constituent_buildings = {
         {"fast-transport-belt", 11},

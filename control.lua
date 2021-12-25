@@ -1167,16 +1167,19 @@ do
             "    wall_material = \"stone-brick\", -- default",
         }
 
+        table.insert(output_lines, "    ingredients = {}, -- fill yourself")
+
         if composite_factory_type == "assembler" then
-            table.insert(output_lines, "    ingredients = {}, -- fill yourself")
             table.insert(output_lines, "    results = {}, -- fill yourself")
             table.insert(output_lines, "    energy_required = 1.0, -- default 1s crafting time")
-            table.insert(output_lines, "    energy_usage = 0MW, -- fill yourself")
-            table.insert(output_lines, "    drain = 0MW, -- fill yourself")
+            table.insert(output_lines, "    energy_usage = \"0MW\", -- fill yourself")
+            table.insert(output_lines, "    drain = \"0MW\", -- fill yourself")
             table.insert(output_lines, "    emissions_per_minute = 0, -- fill yourself")
         elseif composite_factory_type == "generator" then
-            table.insert(output_lines, "    energy_production = 0MW, -- fill yourself")
-            table.insert(output_lines, "    buffer_capacity = 0MJ, -- fill yourself")
+            table.insert(output_lines, "    energy_production_per_craft = \"0MJ\" -- fill yourself, only used if ingredients are specified")
+            table.insert(output_lines, "    energy_required = 1.0 -- fill yourself, only used if ingredients are specified")
+            table.insert(output_lines, "    energy_production = \"0MW\", -- fill yourself, only used if ingredients are not specified")
+            table.insert(output_lines, "    buffer_capacity = \"0MJ\", -- fill yourself, only used if ingredients are not specified")
         else
             return
         end
