@@ -1249,10 +1249,6 @@ do
     end
 
     cflib.add_composite_generator = function(args)
-        if args.ingredients and #args.ingredients ~= 0 then
-            error("Only generators without ingredients are supported right now.")
-        end
-
         local full_name = cflib.make_generator_name(args.name)
 
         local base_sprite_size = 3
@@ -1304,31 +1300,51 @@ do
             stack_size = 1
         }})
 
-        data:extend({{
-            type = "electric-energy-interface",
-            name = full_name,
-            localised_name = localised_name,
-            icon = "__composite_factories_base__/graphics/icons/composite_generator.png",
-            icon_size = 64,
-            flags = {"placeable-neutral", "player-creation"},
-            minable = {mining_time = 1, result = full_name},
-            max_health = 10000,
-            corpse = "medium-remnants",
-            subgroup = "other",
-            collision_box = {{-half_size+0.1, -half_size+0.1}, {half_size-0.1, half_size-0.1}},
-            selection_box = {{-half_size, -half_size}, {half_size, half_size}},
-            gui_mode = "none",
-            energy_source =
-            {
-                type = "electric",
-                buffer_capacity = args.buffer_capacity,
-                usage_priority = "tertiary"
-            },
-            energy_production = args.energy_production,
-            energy_usage = "0W",
-            picture = generate_composite_factory_picture(args.size, {}, {}, "0W", args.energy_production),
-            vehicle_impact_sound = {filename = "__base__/sound/car-metal-impact.ogg", volume = 0.65}
-        }})
+        local animation = generate_composite_factory_picture(args.size, args.ingredients or {}, {}, "0W", args.energy_production)
+        if args.ingredients and #args.ingredients > 0 then
+            fvma.create_generator{
+                name = full_name,
+                localised_name = localised_name,
+                icon = "__composite_factories_base__/graphics/icons/composite_generator.png",
+                icon_size = 64,
+                max_health = 10000,
+                corpse = "medium-remnants",
+                subgroup = "other",
+                size = half_size * 2,
+                ingredients = args.ingredients,
+                energy_production_per_craft = args.energy_production_per_craft,
+                energy_required = args.energy_required,
+                vertical_animation = animation,
+                horizontal_animation = animation,
+                vehicle_impact_sound = {filename = "__base__/sound/car-metal-impact.ogg", volume = 0.65}
+            }
+        else
+            data:extend({{
+                type = "electric-energy-interface",
+                name = full_name,
+                localised_name = localised_name,
+                icon = "__composite_factories_base__/graphics/icons/composite_generator.png",
+                icon_size = 64,
+                flags = {"placeable-neutral", "player-creation"},
+                minable = {mining_time = 1, result = full_name},
+                max_health = 10000,
+                corpse = "medium-remnants",
+                subgroup = "other",
+                collision_box = {{-half_size+0.1, -half_size+0.1}, {half_size-0.1, half_size-0.1}},
+                selection_box = {{-half_size, -half_size}, {half_size, half_size}},
+                gui_mode = "none",
+                energy_source =
+                {
+                    type = "electric",
+                    buffer_capacity = args.buffer_capacity,
+                    usage_priority = "tertiary"
+                },
+                energy_production = args.energy_production,
+                energy_usage = "0W",
+                picture = animation,
+                vehicle_impact_sound = {filename = "__base__/sound/car-metal-impact.ogg", volume = 0.65}
+            }})
+        end
     end
 
     data:extend({
@@ -1365,3 +1381,33 @@ do
         },
     })
 end
+
+-- This is a composite factory definition template.
+-- You will need some basic mod creation knowledge to use this.
+-- To create a composite factory one must make their own mod that
+-- contains the definitions of the desired composite factories.
+-- If you're unsure how to make such a mod check then out how it's done in
+-- https://github.com/Sopel97/composite_factories_pyblock
+-- Inspect the code in the repository above to learn how to define
+-- composite factories. You can use the code from that repository
+-- as a skeleton for your mod, just make sure to remove the existing pyblock content.
+cflib.add_composite_generator{
+    name = "temp-generator-with-ingredients", -- the name of the building/entity
+    size = 14,
+    unlocked_by = cflib.base_technology, -- default tech
+    subgroup = "other", -- your collection (mod) should define an item subgroup to use here
+    roof_tile_cost = 1.0, -- default
+    wall_tile_cost = 10.0, -- default
+    roof_material = "steel-plate", -- default
+    wall_material = "stone-brick", -- default
+    ingredients = {
+        { "wooden-chest", 1 },
+        { type="fluid", name="water", amount=123 },
+    },
+    energy_production_per_craft = "10MW", -- fill yourself
+    energy_required = 2,
+    constituent_buildings = {
+        {"fast-transport-belt", 11},
+        {"transport-belt", 19},
+    },
+}
