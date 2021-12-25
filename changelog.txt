@@ -1,4 +1,9 @@
 ---------------------------------------------------------------------------------------------------
+Version: 1.4.1
+Date: 2021-12-25
+  Features:
+    - Add a deconstructor entity that allows deconstructing a composite factory into its constituent buildings.
+---------------------------------------------------------------------------------------------------
 Version: 1.4.0
 Date: 2021-12-25
   Features:
