@@ -1300,7 +1300,7 @@ do
             stack_size = 1
         }})
 
-        local animation = generate_composite_factory_picture(args.size, args.ingredients or {}, {}, "0W", args.energy_production)
+        local animation = generate_composite_factory_picture(args.size, args.ingredients or {}, {}, "0W", args.energy_production or args.energy_production_per_craft)
         if args.ingredients and #args.ingredients > 0 then
             fvma.create_generator{
                 name = full_name,
@@ -1404,7 +1404,7 @@ cflib.add_composite_generator{
         { "wooden-chest", 1 },
         { type="fluid", name="water", amount=123 },
     },
-    energy_production_per_craft = "1MJ", -- fill yourself
+    energy_production_per_craft = "10MJ", -- fill yourself
     energy_required = 2,
     constituent_buildings = {
         {"fast-transport-belt", 11},
