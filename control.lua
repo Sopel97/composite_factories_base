@@ -1114,11 +1114,16 @@ do
 
         for _, entity in pairs(e.entities) do
             if entity.valid then
-                local name = entity.name
-                if name == "entity-ghost" then
-                    name = entity.ghost_name
+                if entity.prototype.items_to_place_this and entity.prototype.items_to_place_this[1] then
+                    local name = entity.prototype.items_to_place_this[1].name
+                    counts[name] = (counts[name] or 0) + entity.prototype.items_to_place_this[1].count
+                else
+                    local name = entity.name
+                    if name == "entity-ghost" then
+                        name = entity.ghost_name
+                    end
+                    counts[name] = (counts[name] or 0) + 1
                 end
-                counts[name] = (counts[name] or 0) + 1
 
                 local module_inventory = entity.get_module_inventory()
                 if module_inventory and module_inventory.valid then
