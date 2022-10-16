@@ -1172,14 +1172,17 @@ do
         if composite_factory_type == "assembler" then
             table.insert(output_lines, "    results = {}, -- fill yourself")
             table.insert(output_lines, "    energy_required = 1.0, -- default 1s crafting time")
-            table.insert(output_lines, "    energy_usage = \"0MW\", -- fill yourself")
+            table.insert(output_lines, "    energy_usage = \"0MW\", -- fill yourself, must be at least 1W")
             table.insert(output_lines, "    drain = \"0MW\", -- fill yourself")
             table.insert(output_lines, "    emissions_per_minute = 0, -- fill yourself")
         elseif composite_factory_type == "generator" then
-            table.insert(output_lines, "    energy_production_per_craft = \"0MJ\" -- fill yourself, only used if ingredients are specified")
-            table.insert(output_lines, "    energy_required = 1.0 -- fill yourself, only used if ingredients are specified")
+            table.insert(output_lines, "    results = {}, -- fill yourself or leave empty, does not support liquids")
+            table.insert(output_lines, "    usage_priority = \"primary-output\", -- can be primary-output, secondary-output, or tertiary")
+            table.insert(output_lines, "    energy_production_per_craft = \"0MJ\", -- fill yourself, only used if ingredients are specified, if you set energy_required above one, multiply by it if you want a specific amount constantly")
+            table.insert(output_lines, "    energy_required = 1.0, -- fill yourself, only used if ingredients are specified")
             table.insert(output_lines, "    energy_production = \"0MW\", -- fill yourself, only used if ingredients are not specified")
             table.insert(output_lines, "    buffer_capacity = \"0MJ\", -- fill yourself, only used if ingredients are not specified")
+            table.insert(output_lines, "    emissions_per_minute = 0, -- fill yourself")
         else
             return
         end
