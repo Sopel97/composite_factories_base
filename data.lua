@@ -1373,6 +1373,7 @@ do
                 subgroup = "other",
                 size = half_size * 2,
                 ingredients = args.ingredients,
+                emissions_per_minute = args.emissions_per_minute,
                 energy_production_per_craft = args.energy_production_per_craft,
                 energy_required = args.energy_required,
                 vertical_animation = animation,
@@ -1399,6 +1400,7 @@ do
                     type = "electric",
                     buffer_capacity = args.buffer_capacity,
                     usage_priority = "tertiary"
+                    emissions_per_minute = args.emissions_per_minute
                 },
                 energy_production = args.energy_production,
                 energy_usage = "0W",

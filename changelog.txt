@@ -3,6 +3,8 @@ Version: 1.5
 Date: 2022-10-16
   Bugfixes:
     - Fix deconstructor recipe unlock.
+  Features:
+    - Add support for emissions.
 ---------------------------------------------------------------------------------------------------
 Version: 1.4.1
 Date: 2021-12-25
