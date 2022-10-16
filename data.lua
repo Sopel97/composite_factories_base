@@ -1361,7 +1361,7 @@ do
             stack_size = 1
         }})
 
-        local animation = generate_composite_factory_picture(args.size, args.ingredients or {}, {}, "0W", args.energy_production or args.energy_production_per_craft)
+        local animation = generate_composite_factory_picture(args.size, args.ingredients or {}, args.results or {}, "0W", args.energy_production or args.energy_production_per_craft)
         if args.ingredients and #args.ingredients > 0 then
             fvma.create_generator{
                 name = full_name,
@@ -1373,6 +1373,7 @@ do
                 subgroup = "other",
                 size = half_size * 2,
                 ingredients = args.ingredients,
+                results = args.results or {},
                 emissions_per_minute = args.emissions_per_minute,
                 energy_production_per_craft = args.energy_production_per_craft,
                 energy_required = args.energy_required,
