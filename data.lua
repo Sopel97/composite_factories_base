@@ -1460,7 +1460,7 @@ do
         stack_size = 1
     }})
 
-    -- Container recipe
+    -- Deconstructor recipe
     data:extend({{
         type = "recipe",
         name = cflib.deconstructor_name,
@@ -1476,8 +1476,9 @@ do
         results = {
             { cflib.deconstructor_name, 1 }
         },
-        unlocked_by = cflib.base_technology,
     }})
+
+    add_recipe_unlock(cflib.deconstructor_name, cflib.base_technology)
 
     data:extend({{
         type = "furnace",
