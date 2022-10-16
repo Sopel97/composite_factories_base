@@ -7,6 +7,8 @@ Date: 2022-10-16
   Features:
     - Add support for emissions.
     - Allow results for the generator.
+  Improvements:
+    - Calculate generator energy production from energy production per craft.
 ---------------------------------------------------------------------------------------------------
 Version: 1.4.1
 Date: 2021-12-25

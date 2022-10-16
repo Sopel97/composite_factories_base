@@ -1298,8 +1298,17 @@ do
 
         table.insert(args.constituent_buildings, roof_cost)
         table.insert(args.constituent_buildings, wall_cost)
-
-        local localised_name = {"", {"item-name.composite-generator"}, ": ", args.energy_production}
+        
+        local localised_name = {}
+        if args.energy_production_per_craft then
+            local temp_power_value = string.gsub(args.energy_production_per_craft, "%d", "")
+            temp_power_value = string.gsub(temp_power_value, "%.", "")
+            temp_power_value = string.gsub(temp_power_value, "J", "W")
+            local temp_energy = string.gsub(args.energy_production_per_craft, "%a", "") / args.energy_required .. temp_power_value
+            localised_name = {"", {"item-name.composite-generator"}, ": ", temp_energy}
+        else
+            localised_name = {"", {"item-name.composite-generator"}, ": ", args.energy_production}
+        end
 
         -- Composite factory building item recipe
         data:extend({{
