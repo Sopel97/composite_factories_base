@@ -1375,6 +1375,7 @@ do
                 ingredients = args.ingredients,
                 results = args.results or {},
                 emissions_per_minute = args.emissions_per_minute,
+                usage_priority = args.usage_priority or "secondary-output",
                 energy_production_per_craft = args.energy_production_per_craft,
                 energy_required = args.energy_required,
                 vertical_animation = animation,
@@ -1400,7 +1401,7 @@ do
                 {
                     type = "electric",
                     buffer_capacity = args.buffer_capacity,
-                    usage_priority = "tertiary"
+                    usage_priority = args.usage_priority or "primary-output",
                     emissions_per_minute = args.emissions_per_minute
                 },
                 energy_production = args.energy_production,
