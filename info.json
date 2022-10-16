@@ -1,6 +1,6 @@
 {
 	"name": "composite_factories_base",
-	"version": "1.5",
+	"version": "1.5.1",
 	"factorio_version": "1.1",
 	"title": "Composite Factories: Base",
 	"author": "Sopel",
@@ -9,6 +9,6 @@
 	"description": "A library mod for other composite factories mods.",
 	"dependencies": [
     	"base >= 1.0.0",
-    	"fuel_value_my_ass >= 0.2.1"
+    	"fuel_value_my_ass >= 0.3.0"
 	]
 }
