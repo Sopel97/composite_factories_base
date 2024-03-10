@@ -1277,7 +1277,7 @@ do
     end)
 
     script.on_event(defines.events.on_research_finished, function(event)
-        on_something_while_open(event, cflib.on_research_finished)
+        on_something_while_open(event, cflib.on_researched_finished_while_open)
     end)
 
     setup_material_exchange_container_gui_global_events()
