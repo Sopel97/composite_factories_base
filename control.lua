@@ -6,7 +6,7 @@ cflib.global_event_handlers = {}
 
     -- TODO: try to unify these with event_handlers?
 cflib.on_every_10th_tick_while_open = {}
-cflib.on_researched_finished_while_open = {}
+cflib.on_research_finished_while_open = {}
 
 do
     -- TODO: utility lib?
@@ -930,7 +930,7 @@ do
             update_material_exchange_container_gui(gui, entity, player)
         end
 
-        cflib.on_researched_finished_while_open[cflib.make_gui_element_name("material-exchange-container-gui")] = function(player, opened_gui)
+        cflib.on_research_finished_while_open[cflib.make_gui_element_name("material-exchange-container-gui")] = function(player, opened_gui)
             local gui = opened_gui.gui
             local entity = opened_gui.entity
             update_material_exchange_container_gui(gui, entity, player)
@@ -1277,7 +1277,7 @@ do
     end)
 
     script.on_event(defines.events.on_research_finished, function(event)
-        on_something_while_open(event, cflib.on_researched_finished_while_open)
+        on_something_while_open(event, cflib.on_research_finished_while_open)
     end)
 
     setup_material_exchange_container_gui_global_events()
